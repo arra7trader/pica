@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>PICA — OG Architect Dashboard</title>
+  <title>PICA Dashboard - Alpha Terminal</title>
   <meta name="robots" content="noindex,nofollow">
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -101,6 +101,11 @@
         outline: none; border-color: #9333ea; box-shadow: 0 0 0 2px rgba(147, 51, 234, 0.1);
     }
     select.config-input { appearance: none; background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e"); background-repeat: no-repeat; background-position: right 1rem center; background-size: 1em; }
+    
+    /* Table Styling */
+    .history-table th { font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: #94a3b8; font-weight: 700; padding-bottom: 8px; text-align: left; }
+    .history-table td { padding: 8px 0; border-bottom: 1px solid #f1f5f9; font-family: 'JetBrains Mono', monospace; font-size: 12px; }
+    .history-table tr:last-child td { border-bottom: none; }
   </style>
 </head>
 <body class="antialiased font-sans">
@@ -108,7 +113,6 @@
   <div class="ambient-bg">
     <div class="blob-1"></div>
   </div>
-
   <div id="bg-chart-container">
       <canvas id="bgChartCanvas"></canvas>
   </div>
@@ -117,11 +121,11 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex justify-between items-center py-2"> <div class="flex items-center gap-6">
           <div class="relative group">
-            <img src="./image_0.png" alt="PICA Logo" class="relative h-44 w-auto object-contain transform transition-transform group-hover:scale-105">
+            <img src="./image_0.png" alt="PICA Logo" class="relative h-10 w-auto object-contain transform transition-transform group-hover:scale-105">
           </div>
-          <div class="hidden md:flex flex-col border-l-2 border-slate-300 pl-6 h-16 justify-center">
-            <span class="text-base font-extrabold text-slate-900 tracking-widest uppercase">Portfolio & Investment</span>
-            <span class="text-xs text-slate-500 font-mono tracking-[0.2em] uppercase">Crypto Assets Protocol</span>
+          <div class="hidden md:flex flex-col border-l-2 border-slate-300 pl-6 h-8 justify-center">
+            <span class="text-sm font-extrabold text-slate-900 tracking-widest uppercase">PICA</span>
+            <span class="text-[10px] text-slate-500 font-mono tracking-[0.2em] uppercase">Dashboard</span>
           </div>
         </div>
         <div class="flex items-center gap-4">
@@ -130,14 +134,14 @@
               <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
               <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
             </span>
-            <span class="text-xs font-mono font-bold text-slate-700 tracking-wider">INDODAX: MAINNET</span>
+            <span class="text-xs font-mono font-bold text-slate-700 tracking-wider">INDODAX: LIVE</span>
           </div>
         </div>
       </div>
     </div>
   </header>
 
-  <main class="pt-48 pb-12 px-4 sm:px-6 max-w-7xl mx-auto min-h-screen mt-4">
+  <main class="pt-24 pb-12 px-4 sm:px-6 max-w-7xl mx-auto min-h-screen mt-4">
     <div id="view-portfolio" class="space-y-6 animate-fade-in">
       
       <div class="glass-panel rounded-xl p-4 mb-2 border-l-4 border-purple-500">
@@ -172,7 +176,7 @@
                         <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-purple-50 text-purple-600 border border-purple-100 uppercase tracking-wider">Primary Asset</span>
                         <button id="copyPrice" class="text-slate-400 hover:text-slate-700"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path></svg></button>
                     </div>
-                    <h2 id="assetName" class="text-4xl font-extrabold text-slate-900 tracking-tight">MON</h2>
+                    <h2 id="assetName" class="text-4xl font-extrabold text-slate-900 tracking-tight">EDEN</h2>
                     <div class="mt-4 mb-6">
                         <div id="loadingBox" class="flex items-center gap-2 text-slate-400 text-sm py-2">
                             <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
@@ -214,15 +218,41 @@
           </div>
           <div class="space-y-3 mt-6">
             <button id="refreshBtn" class="w-full py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold uppercase tracking-wider shadow-xl transition-all active:scale-95 flex items-center justify-center gap-2 group"><svg class="w-3 h-3 group-hover:animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg> FORCE SYNC</button>
-            <a id="launchExchangeBtn" href="https://indodax.com/market/MONIDR" target="_blank" class="block w-full text-center py-3 rounded-xl border border-slate-200 hover:border-purple-400 hover:text-purple-600 bg-white/50 hover:bg-white text-slate-500 text-xs font-bold uppercase tracking-wider transition-all">Launch Exchange</a>
+            <a id="launchExchangeBtn" href="#" target="_blank" class="block w-full text-center py-3 rounded-xl border border-slate-200 hover:border-purple-400 hover:text-purple-600 bg-white/50 hover:bg-white text-slate-500 text-xs font-bold uppercase tracking-wider transition-all">Launch Exchange</a>
           </div>
         </div>
       </div>
       
+      <div class="glass-panel rounded-xl p-5 overflow-hidden">
+          <div class="flex items-center justify-between mb-4">
+              <h3 class="text-sm font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                  Riwayat Sinkronisasi (Log)
+              </h3>
+              <span class="text-[10px] text-slate-400 font-mono">Menampilkan 15 data terakhir</span>
+          </div>
+          <div class="overflow-x-auto">
+              <table class="w-full history-table">
+                  <thead>
+                      <tr>
+                          <th class="w-24">Waktu</th>
+                          <th>Harga (IDR)</th>
+                          <th class="text-right">Valuasi Aset</th>
+                          <th class="text-right">PnL (Rp)</th>
+                          <th class="text-right">ROI (%)</th>
+                      </tr>
+                  </thead>
+                  <tbody id="historyTableBody">
+                      </tbody>
+              </table>
+              <div id="emptyHistoryMsg" class="text-center py-4 text-xs text-slate-400 font-mono hidden">Belum ada data riwayat tersimpan.</div>
+          </div>
+      </div>
+
       <div class="flex flex-col gap-6">
         <div class="glass-panel rounded-xl p-5 flex flex-col md:flex-row items-center justify-between gap-6 overflow-hidden">
              <div class="flex gap-8 w-full md:w-auto overflow-x-auto pb-2 md:pb-0 hide-scrollbar">
-                 <div class="flex flex-col min-w-max"><span class="text-[10px] uppercase text-slate-400 font-bold tracking-wider mb-0.5">True Cost Basis</span><span id="costBasisDisplay" class="font-mono text-slate-700 font-bold">IDR 29.286.382</span></div>
+                 <div class="flex flex-col min-w-max"><span class="text-[10px] uppercase text-slate-400 font-bold tracking-wider mb-0.5">True Cost Basis</span><span id="costBasisDisplay" class="font-mono text-slate-700 font-bold">...</span></div>
                  <div class="w-px h-8 bg-slate-200"></div>
                  <div class="flex flex-col min-w-max"><span class="text-[10px] uppercase text-slate-400 font-bold tracking-wider mb-0.5">BEP / Unit</span><span id="avgBuy" class="font-mono text-slate-700 font-bold">...</span></div>
              </div>
@@ -235,12 +265,12 @@
         <div>
             <div class="flex items-center justify-between mb-4 px-2">
                 <div class="flex items-center gap-3">
-                    <h3 class="text-sm font-bold text-slate-500 uppercase tracking-widest">Crypto Intelligence Feed</h3>
-                    <span class="news-badge bg-orange-100 text-orange-600 border border-orange-200">ALPHA</span>
+                    <h3 class="text-sm font-bold text-slate-500 uppercase tracking-widest">Global Alpha News</h3>
+                    <span class="news-badge bg-orange-100 text-orange-600 border border-orange-200">DIRECT FEED</span>
                 </div>
                 <span class="text-[10px] text-slate-400 bg-white px-2 py-1 rounded border border-slate-200 font-mono flex items-center gap-1">
-                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"></path></svg>
-                    AUTO-TRANSLATED (ID)
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                    REAL-TIME
                 </span>
             </div>
             <div id="newsContainer" class="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -256,17 +286,19 @@
     let CONFIG = { 
         HOLDINGS: 87110, 
         INITIAL_CAPITAL: 29286382, 
-        PAIR_CODE: 'mon_idr',
-        API_URL: 'https://indodax.com/api/ticker/mon_idr', 
-        NEWS_RSS: 'https://cointelegraph.com/rss', 
-        REFRESH_RATE: 2000,
-        MAX_HISTORY: 300 
+        PAIR_CODE: 'eden_idr',
+        API_URL: 'https://indodax.com/api/ticker/eden_idr', 
+        // Menggunakan RSS2JSON untuk kecepatan dan stabilitas (Tanpa CORS/Rate Limit)
+        NEWS_API: 'https://api.rss2json.com/v1/api.json?rss_url=https://cointelegraph.com/rss', 
+        REFRESH_RATE: 4000, 
+        MAX_HISTORY: 300,
+        MAX_LOGS: 15
     };
 
-    const PROXIES = ['https://api.allorigins.win/raw?url=', 'https://corsproxy.io/?', 'https://api.codetabs.com/v1/proxy?quest='];
+    const PROXIES = ['https://api.allorigins.win/raw?url=', 'https://corsproxy.io/?'];
     let activeProxyIndex = 0;
 
-    // UI ELEMENTS
+    // UI ELEMENTS MAP
     const ui = { 
         price: document.getElementById('price'), 
         assetName: document.getElementById('assetName'),
@@ -284,12 +316,15 @@
         sparkCanvas: document.getElementById('sparkline'), 
         copyBtn: document.getElementById('copyPrice'), 
         resetChartBtn: document.getElementById('resetChartBtn'),
-        // Inputs
         inputCoin: document.getElementById('coinSelector'),
         inputHoldings: document.getElementById('inputHoldings'),
         inputCapital: document.getElementById('inputCapital'),
         applyBtn: document.getElementById('applyConfigBtn'),
-        launchBtn: document.getElementById('launchExchangeBtn')
+        launchBtn: document.getElementById('launchExchangeBtn'),
+        refreshBtn: document.getElementById('refreshBtn'),
+        historyBody: document.getElementById('historyTableBody'),
+        emptyHistoryMsg: document.getElementById('emptyHistoryMsg'),
+        newsContainer: document.getElementById('newsContainer')
     };
 
     const fmt = { 
@@ -298,37 +333,45 @@
         num: (v, d=0) => Number(v).toLocaleString('id-ID', {maximumFractionDigits:d, minimumFractionDigits:0}) 
     };
 
-    // --- CHART STATE ---
-    let savedData = JSON.parse(localStorage.getItem('pica_mon_history')) || { labels: [], values: [] };
-    let state = { lastPrice: null, historyLabels: savedData.labels, historyValues: savedData.values, chart: null };
+    // --- APP STATE ---
+    let savedChartData = JSON.parse(localStorage.getItem('pica_chart_data')) || { labels: [], values: [] };
+    let savedLogs = JSON.parse(localStorage.getItem('pica_table_logs')) || [];
+
+    let state = { 
+        lastPrice: null, 
+        historyLabels: savedChartData.labels, 
+        historyValues: savedChartData.values, 
+        logs: savedLogs,
+        chart: null 
+    };
 
     // --- INITIALIZATION ---
     function init() {
         initChart();
         initBackgroundChart(); 
-        loadAllPairs(); // Load coin list from Indodax
-        updateConfigFromInputs(); // Set initial values
+        loadAllPairs(); 
+        updateConfigFromInputs(); 
+        renderHistoryTable(); 
+        
+        // Initial Fetch
         fetchMarketData();
-        initCryptoAlphaNews(); 
+        fetchAlphaNews(); 
+        
+        // Timers
         setInterval(fetchMarketData, CONFIG.REFRESH_RATE);
+        setInterval(fetchAlphaNews, 60000); // News update every 60s
     }
 
-    // --- 1. LOAD ALL PAIRS FROM INDODAX ---
+    // --- 1. CONFIG & PAIRS ---
     async function loadAllPairs() {
         try {
-            // Fetch list of pairs (Using Summaries API)
             const res = await fetch(PROXIES[0] + encodeURIComponent('https://indodax.com/api/summaries'));
             const data = await res.json();
             const tickers = data.tickers;
             
-            // Clear existing except MON
-            ui.inputCoin.innerHTML = '<option value="mon_idr" selected>MON - Mon Protocol</option>';
-            
-            // Sort keys alphabetically
-            const keys = Object.keys(tickers).sort();
-            
-            keys.forEach(key => {
-                if(key === 'mon_idr') return; // Skip dup
+            ui.inputCoin.innerHTML = '<option value="eden_idr" selected>EDEN - OpenEden</option>';
+            Object.keys(tickers).sort().forEach(key => {
+                if(key === 'eden_idr') return; 
                 if(key.endsWith('_idr')) {
                     const symbol = key.replace('_idr', '').toUpperCase();
                     const option = document.createElement('option');
@@ -338,60 +381,51 @@
                 }
             });
         } catch(e) {
-            console.error("Failed to load pairs", e);
-            const opt = document.createElement('option');
-            opt.text = "Failed to load list";
-            ui.inputCoin.appendChild(opt);
+            console.error("Pairs Error", e);
         }
     }
 
-    // --- 2. CONFIGURATION HANDLER ---
     function updateConfigFromInputs() {
         const pair = ui.inputCoin.value;
         const symbol = pair.split('_')[0].toUpperCase();
-        
         CONFIG.PAIR_CODE = pair;
         CONFIG.API_URL = `https://indodax.com/api/ticker/${pair}`;
         CONFIG.HOLDINGS = parseFloat(ui.inputHoldings.value) || 0;
         CONFIG.INITIAL_CAPITAL = parseFloat(ui.inputCapital.value) || 0;
         
-        // UI Updates
         ui.assetName.textContent = symbol;
         ui.holdings.textContent = fmt.num(CONFIG.HOLDINGS) + ' ' + symbol;
         ui.costBasis.textContent = fmt.idr(CONFIG.INITIAL_CAPITAL);
         const avg = CONFIG.HOLDINGS > 0 ? CONFIG.INITIAL_CAPITAL / CONFIG.HOLDINGS : 0;
         ui.avgBuy.textContent = fmt.idrPrice(avg);
-        
-        // Update Link
         ui.launchBtn.href = `https://indodax.com/market/${pair.toUpperCase().replace('_', '')}`;
-        
-        // Reset Chart if pair changed (optional logic, simplified here)
         ui.loading.style.display = 'flex';
         ui.price.textContent = '...';
     }
 
     ui.applyBtn.addEventListener('click', () => {
-        // Reset Chart History when config applied manually (New Asset assumed)
-        state.historyValues = [];
-        state.historyLabels = [];
-        localStorage.removeItem('pica_mon_history');
+        state.historyValues = []; state.historyLabels = []; state.logs = [];
+        localStorage.removeItem('pica_chart_data');
+        localStorage.removeItem('pica_table_logs');
         updateConfigFromInputs();
+        renderHistoryTable();
+        updateChart(0, false, true);
         ui.status.textContent = 'UPDATING...';
         setTimeout(fetchMarketData, 500);
     });
 
-    // --- CHART ENGINE ---
+    ui.refreshBtn.addEventListener('click', () => {
+        ui.status.textContent = 'SYNCING...';
+        fetchMarketData();
+        fetchAlphaNews();
+    });
+
+    // --- 2. MARKET DATA & CHART ---
     function initChart() {
         const ctx = ui.sparkCanvas.getContext('2d');
         state.chart = new Chart(ctx, { 
             type: 'line', 
-            data: { 
-                labels: state.historyLabels, 
-                datasets: [
-                    { label: 'Valuation', data: state.historyValues, borderColor: '#9333ea', borderWidth: 2, fill: true, backgroundColor: 'rgba(147, 51, 234, 0.05)', pointRadius: 0, tension: 0.1 },
-                    { label: 'Modal', data: [], borderColor: '#94a3b8', borderWidth: 1, borderDash: [4, 4], pointRadius: 0, fill: false }
-                ] 
-            }, 
+            data: { labels: state.historyLabels, datasets: [{ label: 'Valuation', data: state.historyValues, borderColor: '#9333ea', borderWidth: 2, fill: true, backgroundColor: 'rgba(147, 51, 234, 0.05)', pointRadius: 0, tension: 0.1 }] }, 
             options: { responsive: true, maintainAspectRatio: false, plugins: { legend: false, tooltip: { mode: 'index', intersect: false } }, scales: { x: { display: true, ticks: { display: false } }, y: { display: false, grace: '5%' } }, layout: { padding: 0 } } 
         });
     }
@@ -404,9 +438,7 @@
         new Chart(ctxBg, { type: 'line', data: { labels: Array(30).fill(''), datasets: [{ data: generateData(), borderColor: '#9333ea', borderWidth: 4, tension: 0.4, fill: true, backgroundColor: grad, pointRadius: 0 }] }, options: { responsive: true, maintainAspectRatio: false, animation: { duration: 3000, easing: 'linear' }, plugins: { legend: false }, scales: { x: { display: false }, y: { display: false } } } });
     }
 
-    // --- MARKET DATA ENGINE ---
     async function fetchMarketData() {
-        if(ui.status.textContent === 'NODE FAILED') ui.status.textContent = 'RETRYING...';
         const proxyUrl = PROXIES[activeProxyIndex];
         const cacheBuster = '&t=' + new Date().getTime();
         try {
@@ -418,7 +450,6 @@
             clearTimeout(id);
             if(!res.ok) throw new Error('Network error');
             const data = await res.json();
-            
             if(data.ticker && data.ticker.last) updateDashboard(parseFloat(data.ticker.last));
         } catch(e) {
             console.log(`Proxy failed`, e);
@@ -450,18 +481,22 @@
             ui.change.innerHTML = `<span class="${delta >= 0 ? 'text-emerald-600' : 'text-rose-600'} font-bold font-mono text-sm">${sign} ${Math.abs(delta).toFixed(2)}%</span> <span class="text-slate-400 text-xs ml-1">tick drift</span>`;
         }
         
+        ui.advice.innerHTML = `<span class="text-emerald-400">@SYSTEM:</span> Market price updated to ${fmt.idrPrice(currentPrice)}. PnL Delta: ${pnlPct.toFixed(2)}%.`;
+
         updateChart(currentValue, isProfitable); 
+        addToHistoryLog(currentPrice, currentValue, pnl, pnlPct); 
         ui.lastUpdated.textContent = new Date().toLocaleTimeString('id-ID');
         state.lastPrice = currentPrice;
     }
 
-    function updateChart(currentValuation, isProfitable) {
+    function updateChart(currentValuation, isProfitable, reset = false) {
         if(!state.chart) return;
+        if(reset) { state.chart.data.datasets[0].data = []; state.chart.data.labels = []; state.chart.update(); return; }
+
         const now = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
         state.historyValues.push(currentValuation); state.historyLabels.push(now);
         if(state.historyValues.length > CONFIG.MAX_HISTORY) { state.historyValues.shift(); state.historyLabels.shift(); }
-        // Simple storage key logic
-        localStorage.setItem('pica_mon_history', JSON.stringify({ labels: state.historyLabels, values: state.historyValues }));
+        localStorage.setItem('pica_chart_data', JSON.stringify({ labels: state.historyLabels, values: state.historyValues }));
         
         state.chart.data.labels = state.historyLabels;
         state.chart.data.datasets[0].data = state.historyValues;
@@ -469,56 +504,114 @@
         const ctx = ui.sparkCanvas.getContext('2d'); const gradient = ctx.createLinearGradient(0, 0, 0, 100);
         gradient.addColorStop(0, isProfitable ? 'rgba(16, 185, 129, 0.2)' : 'rgba(244, 63, 94, 0.2)'); gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
         state.chart.data.datasets[0].backgroundColor = gradient;
-        state.chart.data.datasets[1].data = new Array(state.historyValues.length).fill(CONFIG.INITIAL_CAPITAL);
         state.chart.update('none');
     }
 
-    ui.resetChartBtn.addEventListener('click', () => { if(confirm('Clear history?')) { localStorage.removeItem('pica_mon_history'); state.historyValues = []; state.historyLabels = []; updateChart(state.lastPrice * CONFIG.HOLDINGS, true); }});
-
-    // --- TRANSLATION & NEWS ---
-    async function translateText(text) {
-        try { const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=id&dt=t&q=${encodeURIComponent(text)}`; const res = await fetch(PROXIES[0] + encodeURIComponent(url)); const data = await res.json(); return data[0][0][0]; } catch (e) { return text; }
+    // --- 3. HISTORY LOG ---
+    function addToHistoryLog(price, value, pnl, pnlPct) {
+        if(state.logs.length > 0 && state.logs[0].price === price) return;
+        const newLog = { time: new Date().toLocaleTimeString('id-ID'), price: price, value: value, pnl: pnl, pnlPct: pnlPct };
+        state.logs.unshift(newLog); 
+        if (state.logs.length > CONFIG.MAX_LOGS) state.logs.pop(); 
+        localStorage.setItem('pica_table_logs', JSON.stringify(state.logs));
+        renderHistoryTable();
     }
 
-    async function initCryptoAlphaNews() {
-        try {
-            const res = await fetch(PROXIES[0] + encodeURIComponent(CONFIG.NEWS_RSS));
-            if (!res.ok) throw new Error("News Error");
-            const str = await res.text();
-            const doc = new DOMParser().parseFromString(str, "text/xml");
-            const items = Array.from(doc.querySelectorAll("item")).slice(0, 3);
-            
-            let htmlContent = '';
-            const processedNews = await Promise.all(items.map(async (item) => {
-                const title = await translateText(item.querySelector("title").textContent);
-                const link = item.querySelector("link").textContent;
-                const date = new Date(item.querySelector("pubDate").textContent).toLocaleDateString();
-                let imgUrl = 'https://cointelegraph.com/assets/img/logo.png';
-                const match = item.querySelector("description").textContent.match(/src="([^"]*)"/);
-                if (match && match[1]) imgUrl = match[1];
-                return { title, link, date, imgUrl };
-            }));
+    function renderHistoryTable() {
+        ui.historyBody.innerHTML = '';
+        if (state.logs.length === 0) { ui.emptyHistoryMsg.classList.remove('hidden'); return; } 
+        else { ui.emptyHistoryMsg.classList.add('hidden'); }
 
-            processedNews.forEach(news => {
+        state.logs.forEach(log => {
+            const row = document.createElement('tr');
+            const isProfit = log.pnl >= 0;
+            const pnlColor = isProfit ? 'text-emerald-600' : 'text-rose-600';
+            row.className = "hover:bg-slate-50 transition-colors";
+            row.innerHTML = `
+                <td class="text-slate-500">${log.time}</td>
+                <td class="font-bold text-slate-700">${fmt.idrPrice(log.price)}</td>
+                <td class="text-right text-slate-600">${fmt.idr(log.value)}</td>
+                <td class="text-right font-bold ${pnlColor}">${(log.pnl >= 0 ? '+' : '')}${fmt.idr(log.pnl)}</td>
+                <td class="text-right font-bold ${pnlColor}">${(log.pnlPct >= 0 ? '+' : '')}${log.pnlPct.toFixed(2)}%</td>
+            `;
+            ui.historyBody.appendChild(row);
+        });
+    }
+
+    ui.resetChartBtn.addEventListener('click', () => { 
+        if(confirm('Clear history?')) { 
+            localStorage.removeItem('pica_chart_data'); state.historyValues = []; state.historyLabels = []; updateChart(state.lastPrice * CONFIG.HOLDINGS, true, true);
+            localStorage.removeItem('pica_table_logs'); state.logs = []; renderHistoryTable();
+        }
+    });
+
+    // --- 4. ROBUST ALPHA NEWS FETCHING (JSON) ---
+    async function fetchAlphaNews() {
+        try {
+            // Menggunakan RSS2JSON (lebih stabil daripada fetch manual + proxy)
+            const res = await fetch(CONFIG.NEWS_API);
+            const data = await res.json();
+            
+            if(data.status !== 'ok') throw new Error('RSS Failed');
+
+            let htmlContent = '';
+            // Ambil 3 berita teratas
+            const items = data.items.slice(0, 3);
+
+            items.forEach(item => {
+                const title = item.title;
+                const link = item.link;
+                const date = new Date(item.pubDate).toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'});
+                let imgUrl = item.thumbnail || item.enclosure?.link || 'https://cointelegraph.com/assets/img/logo.png';
+
+                // Alpha Sentiment Analysis (Simple Keyword Check)
+                let badge = 'ALPHA';
+                let badgeColor = 'bg-blue-600';
+                
+                const lowerTitle = title.toLowerCase();
+                if (lowerTitle.includes('etf') || lowerTitle.includes('approved') || lowerTitle.includes('bull') || lowerTitle.includes('soars') || lowerTitle.includes('high')) {
+                    badge = 'BULLISH';
+                    badgeColor = 'bg-emerald-500';
+                } else if (lowerTitle.includes('hack') || lowerTitle.includes('ban') || lowerTitle.includes('sec') || lowerTitle.includes('crash') || lowerTitle.includes('down')) {
+                    badge = 'CRITICAL';
+                    badgeColor = 'bg-rose-500';
+                } else if (lowerTitle.includes('launch') || lowerTitle.includes('mainnet') || lowerTitle.includes('partnership')) {
+                    badge = 'CATALYST';
+                    badgeColor = 'bg-purple-500';
+                }
+
                 htmlContent += `
-                <a href="${news.link}" target="_blank" class="glass-panel rounded-xl overflow-hidden group block hover:ring-2 hover:ring-blue-400 transition-all">
+                <a href="${link}" target="_blank" class="glass-panel rounded-xl overflow-hidden group block hover:ring-2 hover:ring-purple-400 transition-all">
                     <div class="h-32 w-full overflow-hidden relative">
-                        <img src="${news.imgUrl}" class="w-full h-full object-cover transform group-hover:scale-110 transition duration-500" onerror="this.src='https://placehold.co/600x400?text=Alpha'">
-                        <div class="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-black/60 to-transparent"></div>
-                        <div class="absolute top-2 right-2 bg-blue-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded shadow">ALPHA</div>
+                        <img src="${imgUrl}" class="w-full h-full object-cover transform group-hover:scale-110 transition duration-500" onerror="this.src='https://placehold.co/600x400?text=News'">
+                        <div class="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-black/80 to-transparent"></div>
+                        <div class="absolute top-2 right-2 text-white text-[9px] font-bold px-2 py-1 rounded shadow ${badgeColor}">${badge}</div>
                     </div>
                     <div class="p-4">
-                        <h4 class="text-sm font-bold text-slate-800 line-clamp-2 leading-snug mb-2 group-hover:text-blue-600">${news.title}</h4>
-                        <span class="text-[10px] text-slate-400 font-mono">${news.date}</span>
+                        <h4 class="text-sm font-bold text-slate-800 line-clamp-2 leading-snug mb-2 group-hover:text-purple-600">${title}</h4>
+                        <div class="flex justify-between items-center">
+                            <span class="text-[10px] text-slate-400 font-mono">${date}</span>
+                            <span class="text-[9px] font-bold text-slate-300 uppercase">EN - DIRECT FEED</span>
+                        </div>
                     </div>
                 </a>`;
             });
-            document.getElementById('newsContainer').innerHTML = htmlContent;
-        } catch(e) { console.log(e); }
+
+            ui.newsContainer.innerHTML = htmlContent;
+
+        } catch (e) {
+            console.error("News Error:", e);
+            // Fallback jika gagal (agar tidak kosong)
+            ui.newsContainer.innerHTML = `
+                <div class="col-span-3 text-center py-8 opacity-50">
+                    <p class="text-xs font-mono text-slate-400">CONNECTING TO ALPHA NODE...</p>
+                    <button onclick="fetchAlphaNews()" class="mt-2 text-[10px] underline text-blue-500">Retry Manual</button>
+                </div>
+            `;
+        }
     }
 
     init();
   </script>
 </body>
-
 </html>
