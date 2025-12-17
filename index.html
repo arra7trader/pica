@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>PICA Dashboard - Turbo Alpha</title>
+  <title>PICA Dashboard - Stable Link</title>
   <meta name="robots" content="noindex,nofollow">
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -18,287 +18,165 @@
       darkMode: 'class',
       theme: {
         extend: {
-          fontFamily: {
-            sans: ['Outfit', 'sans-serif'],
-            mono: ['JetBrains Mono', 'monospace'],
-          },
-          animation: {
-            'blob': 'blob 25s infinite',
-            'fade-in': 'fadeIn 0.6s ease-out forwards',
-            'pulse-fast': 'pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-          },
-          keyframes: {
-            blob: {
-              '0%': { transform: 'translate(0px, 0px) scale(1)' },
-              '33%': { transform: 'translate(30px, -50px) scale(1.1)' },
-              '66%': { transform: 'translate(-20px, 20px) scale(0.9)' },
-              '100%': { transform: 'translate(0px, 0px) scale(1)' },
-            },
-            fadeIn: {
-              '0%': { opacity: '0', transform: 'translateY(10px)' },
-              '100%': { opacity: '1', transform: 'translateY(0)' },
-            }
-          }
+          fontFamily: { sans: ['Outfit', 'sans-serif'], mono: ['JetBrains Mono', 'monospace'] },
+          animation: { 'pulse-fast': 'pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite' }
         }
       }
     }
   </script>
 
   <style>
-    body {
-      background-color: #F8FAFC; 
-      color: #0F172A; 
-      overflow-x: hidden;
-    }
-    .ambient-bg {
-      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-      z-index: -3; overflow: hidden;
-      background: radial-gradient(circle at 50% 0%, #ffffff 0%, #F1F5F9 100%);
-    }
-    #bg-chart-container {
-        position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-        z-index: -1; opacity: 0.15; pointer-events: none; overflow: hidden;
-    }
-    .blob-1 {
-      position: absolute; top: -10%; left: -5%; width: 50vw; height: 50vw;
-      background: radial-gradient(circle, rgba(147, 51, 234, 0.12) 0%, rgba(255,255,255,0) 70%);
-      border-radius: 50%; animation: blob 25s infinite alternate; filter: blur(60px);
-    }
+    body { background-color: #F8FAFC; color: #0F172A; overflow-x: hidden; }
     .glass-panel {
       background: rgba(255, 255, 255, 0.7);
-      backdrop-filter: blur(20px) saturate(180%);
-      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
       border: 1px solid rgba(255, 255, 255, 0.8);
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), inset 0 0 0 1px rgba(255, 255, 255, 0.5);
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
+      transition: all 0.3s;
     }
-    .glass-panel:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05);
-        background: rgba(255, 255, 255, 0.85);
-    }
-    .glass-nav {
-      background: rgba(255, 255, 255, 0.9);
-      backdrop-filter: blur(12px);
-      border-bottom: 1px solid rgba(226, 232, 240, 0.6);
-    }
-    .ticker-mask { mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent); -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent); }
-    .news-badge { font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
-    
-    /* Input Styling */
     .config-input {
-        background: rgba(255, 255, 255, 0.5);
-        border: 1px solid #e2e8f0;
-        border-radius: 8px;
-        padding: 8px 12px;
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 12px;
-        color: #334155;
-        width: 100%;
-        transition: all 0.2s;
+        background: rgba(255, 255, 255, 0.5); border: 1px solid #e2e8f0; border-radius: 8px;
+        padding: 8px 12px; font-family: 'JetBrains Mono', monospace; font-size: 12px; width: 100%;
     }
-    .config-input:focus {
-        outline: none; border-color: #9333ea; box-shadow: 0 0 0 2px rgba(147, 51, 234, 0.1);
-    }
-    select.config-input { appearance: none; background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e"); background-repeat: no-repeat; background-position: right 1rem center; background-size: 1em; }
-    
-    /* Table Styling */
-    .history-table th { font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: #94a3b8; font-weight: 700; padding-bottom: 8px; text-align: left; }
     .history-table td { padding: 8px 0; border-bottom: 1px solid #f1f5f9; font-family: 'JetBrains Mono', monospace; font-size: 12px; }
-    .history-table tr:last-child td { border-bottom: none; }
-    
-    /* Animation Utility */
-    .flash-text { transition: color 0.3s ease; }
   </style>
 </head>
 <body class="antialiased font-sans">
 
-  <div class="ambient-bg">
-    <div class="blob-1"></div>
-  </div>
-  <div id="bg-chart-container">
-      <canvas id="bgChartCanvas"></canvas>
-  </div>
+  <div class="fixed top-0 left-0 w-full h-full -z-10 bg-slate-50"></div>
 
-  <header class="fixed top-0 w-full z-50 glass-nav">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex justify-between items-center py-2"> <div class="flex items-center gap-6">
-          <div class="relative group">
-            <img src="./image_0.png" alt="PICA Logo" class="relative h-10 w-auto object-contain transform transition-transform group-hover:scale-105">
-          </div>
-          <div class="hidden md:flex flex-col border-l-2 border-slate-300 pl-6 h-8 justify-center">
-            <span class="text-sm font-extrabold text-slate-900 tracking-widest uppercase">PICA</span>
-            <span class="text-[10px] text-slate-500 font-mono tracking-[0.2em] uppercase">Turbo Terminal</span>
-          </div>
-        </div>
+  <header class="fixed top-0 w-full z-50 bg-white/90 backdrop-blur-md border-b border-slate-200">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
         <div class="flex items-center gap-4">
-          <div class="hidden sm:flex items-center gap-2 px-4 py-2 rounded-full bg-slate-50 border border-slate-200 shadow-sm">
-            <span class="relative flex h-3 w-3">
-              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
-            </span>
-            <span class="text-xs font-mono font-bold text-slate-700 tracking-wider">LIVE FEED</span>
-          </div>
+            <div class="h-8 w-8 bg-purple-600 rounded-lg flex items-center justify-center text-white font-bold">P</div>
+            <span class="font-bold text-slate-800 tracking-wider">PICA PROTOCOL</span>
         </div>
-      </div>
+        <div class="flex items-center gap-2">
+            <span id="connectionStatus" class="px-3 py-1 rounded-full bg-slate-100 text-slate-500 text-[10px] font-bold border border-slate-200 uppercase">SYSTEM READY</span>
+        </div>
     </div>
   </header>
 
-  <main class="pt-24 pb-12 px-4 sm:px-6 max-w-7xl mx-auto min-h-screen mt-4">
-    <div id="view-portfolio" class="space-y-6 animate-fade-in">
-      
-      <div class="glass-panel rounded-xl p-4 mb-2 border-l-4 border-purple-500">
-          <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
-              <div>
-                  <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1">Select Asset (IDR)</label>
-                  <select id="coinSelector" class="config-input cursor-pointer font-bold">
-                      <option value="eden_idr" selected>EDEN - OpenEden</option>
-                      <option disabled>Loading pairs...</option>
-                  </select>
-              </div>
-              <div>
-                  <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1">Holdings</label>
-                  <input type="number" id="inputHoldings" class="config-input" value="25071.9723487">
-              </div>
-              <div>
-                  <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1">Initial Capital (IDR)</label>
-                  <input type="number" id="inputCapital" class="config-input" value="28970053">
-              </div>
-              <div>
-                  <button id="applyConfigBtn" class="w-full bg-slate-900 text-white font-bold text-xs py-2.5 rounded-lg hover:bg-slate-800 transition shadow-lg active:scale-95">RELOAD ASSET</button>
-              </div>
-          </div>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
-        
-        <div class="md:col-span-4 glass-panel rounded-2xl p-6 relative overflow-hidden group">
-            <div class="relative z-10 flex flex-col h-full justify-between">
-                <div>
-                    <div class="flex justify-between items-center mb-2">
-                        <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-purple-50 text-purple-600 border border-purple-100 uppercase tracking-wider">Asset</span>
-                        <button id="copyPrice" class="text-slate-400 hover:text-slate-700">📋</button>
-                    </div>
-                    <h2 id="assetName" class="text-4xl font-extrabold text-slate-900 tracking-tight">EDEN</h2>
-                    <div class="mt-4 mb-6">
-                        <div id="loadingBox" class="flex items-center gap-2 text-slate-400 text-sm py-2">
-                            <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                            <span class="font-mono text-xs tracking-wider">CONNECTING...</span>
-                        </div>
-                        <div id="price" class="text-5xl font-mono font-bold text-slate-900 tracking-tighter tabular-nums leading-none flash-text">—</div>
-                        <div id="price-change" class="mt-3 text-sm font-medium flex items-center gap-1 h-5">Initializing...</div>
-                    </div>
-                </div>
-                <div class="grid grid-cols-2 gap-4 pt-4 border-t border-slate-200">
-                    <div><p class="text-[10px] text-slate-500 uppercase tracking-widest font-semibold mb-1">Holdings</p><p id="holdings" class="font-mono font-bold text-slate-800 text-sm">...</p></div>
-                    <div class="text-right"><p class="text-[10px] text-slate-500 uppercase tracking-widest font-semibold mb-1">Valuation</p><p id="currentValue" class="font-mono font-bold text-slate-800 text-sm">...</p></div>
-                </div>
+  <main class="pt-24 pb-12 px-4 sm:px-6 max-w-7xl mx-auto min-h-screen">
+    
+    <div class="glass-panel rounded-xl p-4 mb-6 border-l-4 border-purple-500">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+            <div>
+                <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1">Asset Code</label>
+                <select id="coinSelector" class="config-input font-bold">
+                    <option value="eden_idr" selected>EDEN - OpenEden</option>
+                    <option value="mon_idr">MON - Mon Protocol</option>
+                    <option value="btc_idr">BTC - Bitcoin</option>
+                    <option value="eth_idr">ETH - Ethereum</option>
+                    <option value="sol_idr">SOL - Solana</option>
+                    <option value="usdt_idr">USDT - Tether</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1">Holdings</label>
+                <input type="number" id="inputHoldings" class="config-input" value="25071.97">
+            </div>
+            <div>
+                <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1">Initial Capital</label>
+                <input type="number" id="inputCapital" class="config-input" value="28970053">
+            </div>
+            <div>
+                <button id="applyConfigBtn" class="w-full bg-slate-900 text-white font-bold text-xs py-2.5 rounded-lg hover:bg-slate-800 transition">RESET CONNECTION</button>
             </div>
         </div>
-
-        <div class="md:col-span-5 glass-panel rounded-2xl p-6 flex flex-col justify-between">
-          <div class="flex justify-between items-center mb-6">
-            <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2"><span class="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse-fast"></span> Equity Curve</h3>
-            <div class="flex items-center gap-2">
-                <button id="resetChartBtn" class="text-[10px] text-slate-400 hover:text-red-500 border border-transparent hover:border-red-200 px-1 rounded transition-colors">CLEAR</button>
-                <span id="lastUpdated" class="text-[10px] font-mono text-slate-400 bg-white/50 border border-white px-2 py-1 rounded shadow-sm">--:--:--</span>
-            </div>
-          </div>
-          <div class="grid grid-cols-2 gap-4 mb-4">
-            <div class="p-4 rounded-xl bg-gradient-to-br from-white/60 to-white/20 border border-white shadow-sm"><p class="text-[10px] uppercase text-slate-400 font-bold mb-1 tracking-wider">Unrealized PnL</p><div id="pnlRp" class="text-xl font-mono font-bold text-slate-800">...</div></div>
-            <div class="p-4 rounded-xl bg-gradient-to-br from-white/60 to-white/20 border border-white shadow-sm"><p class="text-[10px] uppercase text-slate-400 font-bold mb-1 tracking-wider">ROI %</p><div id="pnlPct" class="text-xl font-mono font-bold text-slate-800">...</div></div>
-          </div>
-          <div class="h-40 w-full relative mt-auto rounded-lg overflow-hidden bg-slate-50/50 border border-slate-100 flex items-center justify-center p-2">
-              <canvas id="sparkline"></canvas>
-          </div>
-        </div>
-
-        <div class="md:col-span-3 glass-panel rounded-2xl p-6 flex flex-col">
-          <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Protocol Status</h3>
-          <div class="flex-1 space-y-4">
-             <div><p class="text-[10px] uppercase text-slate-400 font-bold mb-1">Status</p><div id="status" class="font-bold text-xs bg-blue-100 text-blue-500 inline-block px-2 py-1 rounded border border-blue-200">INIT...</div></div>
-             <div><p class="text-[10px] uppercase text-slate-400 font-bold mb-2">System Log</p><div id="advice" class="p-3 bg-slate-900 text-slate-200 rounded-lg border border-slate-700 text-xs leading-relaxed font-mono shadow-inner"><span class="animate-pulse">_</span> Waiting for feed...</div></div>
-          </div>
-          <div class="space-y-3 mt-6">
-            <button id="refreshBtn" class="w-full py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold uppercase tracking-wider shadow-xl transition-all active:scale-95 flex items-center justify-center gap-2 group">FORCE SYNC</button>
-            <a id="launchExchangeBtn" href="#" target="_blank" class="block w-full text-center py-3 rounded-xl border border-slate-200 hover:border-purple-400 hover:text-purple-600 bg-white/50 hover:bg-white text-slate-500 text-xs font-bold uppercase tracking-wider transition-all">Open Market</a>
-          </div>
-        </div>
-      </div>
-      
-      <div class="glass-panel rounded-xl p-5 overflow-hidden">
-          <div class="flex items-center justify-between mb-4">
-              <h3 class="text-sm font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                  Live Transaction Log
-              </h3>
-              <span class="text-[10px] text-slate-400 font-mono">Real-time History</span>
-          </div>
-          <div class="overflow-x-auto">
-              <table class="w-full history-table">
-                  <thead>
-                      <tr>
-                          <th class="w-24">Time</th>
-                          <th>Price (IDR)</th>
-                          <th class="text-right">Valuation</th>
-                          <th class="text-right">PnL (Rp)</th>
-                          <th class="text-right">ROI (%)</th>
-                      </tr>
-                  </thead>
-                  <tbody id="historyTableBody"></tbody>
-              </table>
-              <div id="emptyHistoryMsg" class="text-center py-4 text-xs text-slate-400 font-mono hidden">No data log available.</div>
-          </div>
-      </div>
-
-      <div class="flex flex-col gap-6">
-        <div class="glass-panel rounded-xl p-5 flex flex-col md:flex-row items-center justify-between gap-6 overflow-hidden">
-             <div class="flex gap-8 w-full md:w-auto overflow-x-auto pb-2 md:pb-0 hide-scrollbar">
-                 <div class="flex flex-col min-w-max"><span class="text-[10px] uppercase text-slate-400 font-bold tracking-wider mb-0.5">True Cost Basis</span><span id="costBasisDisplay" class="font-mono text-slate-700 font-bold">...</span></div>
-                 <div class="w-px h-8 bg-slate-200"></div>
-                 <div class="flex flex-col min-w-max"><span class="text-[10px] uppercase text-slate-400 font-bold tracking-wider mb-0.5">BEP / Unit</span><span id="avgBuy" class="font-mono text-slate-700 font-bold">...</span></div>
-             </div>
-             <div class="flex flex-col w-full md:w-1/2 border-t md:border-t-0 md:border-l border-slate-200 pt-4 md:pt-0 md:pl-6">
-                <span class="text-[10px] uppercase text-slate-400 font-bold tracking-wider flex items-center gap-2 mb-2"><span class="relative flex h-2 w-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span></span> Alpha Signals</span>
-                <div class="relative w-full overflow-hidden h-5 ticker-mask"><div id="newsTicker" class="text-xs text-slate-600 font-mono absolute whitespace-nowrap animate-marquee flex gap-8">Initializing Alpha Protocol...</div></div>
-             </div>
-        </div>
-
-        <div>
-            <div class="flex items-center justify-between mb-4 px-2">
-                <div class="flex items-center gap-3">
-                    <h3 class="text-sm font-bold text-slate-500 uppercase tracking-widest">Global Alpha Intelligence</h3>
-                    <span class="news-badge bg-orange-100 text-orange-600 border border-orange-200">DIRECT FEED</span>
-                </div>
-                <span class="text-[10px] text-slate-400 bg-white px-2 py-1 rounded border border-slate-200 font-mono flex items-center gap-1">REAL-TIME</span>
-            </div>
-            <div id="newsContainer" class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="glass-panel rounded-xl overflow-hidden h-64 animate-pulse"><div class="h-32 bg-slate-200 w-full"></div><div class="p-4 space-y-2"><div class="h-4 bg-slate-200 rounded w-3/4"></div><div class="h-3 bg-slate-200 rounded w-1/2"></div></div></div>
-            </div>
-        </div>
-      </div>
     </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+        
+        <div class="md:col-span-4 glass-panel rounded-2xl p-6 flex flex-col justify-between h-64">
+            <div>
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-[10px] font-bold text-purple-600 bg-purple-50 px-2 py-0.5 rounded uppercase">Live Market</span>
+                </div>
+                <h2 id="assetName" class="text-4xl font-extrabold text-slate-900">EDEN</h2>
+                <div class="mt-4">
+                    <div id="loadingBox" class="flex items-center gap-2 text-slate-400 text-xs font-mono hidden">
+                        <span class="animate-spin">↻</span> <span id="loadingText">CONNECTING...</span>
+                    </div>
+                    <div id="price" class="text-4xl font-mono font-bold text-slate-900 tracking-tighter">--</div>
+                    <div id="price-change" class="text-sm font-medium mt-2 text-slate-400">Waiting for signal...</div>
+                </div>
+            </div>
+            <div class="flex justify-between border-t border-slate-100 pt-4">
+                <div><p class="text-[10px] text-slate-400 uppercase font-bold">Holdings</p><p id="holdings" class="font-mono text-sm font-bold text-slate-700">...</p></div>
+                <div class="text-right"><p class="text-[10px] text-slate-400 uppercase font-bold">Valuation</p><p id="currentValue" class="font-mono text-sm font-bold text-slate-700">...</p></div>
+            </div>
+        </div>
+
+        <div class="md:col-span-5 glass-panel rounded-2xl p-6 flex flex-col h-64">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xs font-bold text-slate-400 uppercase">Equity Curve</h3>
+                <span id="lastUpdated" class="text-[10px] font-mono text-slate-400">--:--:--</span>
+            </div>
+            <div class="grid grid-cols-2 gap-4 mb-2">
+                 <div><p class="text-[10px] text-slate-400 uppercase font-bold">PnL (Rp)</p><div id="pnlRp" class="text-lg font-mono font-bold text-slate-700">...</div></div>
+                 <div><p class="text-[10px] text-slate-400 uppercase font-bold">ROI %</p><div id="pnlPct" class="text-lg font-mono font-bold text-slate-700">...</div></div>
+            </div>
+            <div class="flex-1 relative w-full overflow-hidden">
+                <canvas id="sparkline"></canvas>
+            </div>
+        </div>
+
+        <div class="md:col-span-3 glass-panel rounded-2xl p-6 flex flex-col h-64">
+            <h3 class="text-xs font-bold text-slate-400 uppercase mb-4">Network Status</h3>
+            <div class="flex-1">
+                <div id="proxyStatus" class="text-[10px] font-mono p-2 bg-slate-100 rounded text-slate-500 mb-2">Node: Initializing...</div>
+                <div id="advice" class="text-[10px] font-mono p-2 bg-slate-900 text-green-400 rounded leading-relaxed">System ready. Waiting for data stream...</div>
+            </div>
+            <button id="refreshBtn" class="w-full mt-4 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold text-xs py-2 rounded transition">FORCE REFRESH</button>
+        </div>
+    </div>
+
+    <div class="mt-6 glass-panel rounded-xl p-5">
+        <h3 class="text-sm font-bold text-slate-500 uppercase mb-4 flex items-center gap-2">Transaction Log <span class="text-[10px] bg-slate-100 px-2 rounded">LIVE</span></h3>
+        <div class="overflow-x-auto max-h-60 overflow-y-auto">
+            <table class="w-full history-table text-left">
+                <thead>
+                    <tr class="text-slate-400 border-b border-slate-200">
+                        <th class="pb-2">Time</th>
+                        <th class="pb-2">Price</th>
+                        <th class="pb-2 text-right">Valuation</th>
+                        <th class="pb-2 text-right">PnL</th>
+                    </tr>
+                </thead>
+                <tbody id="historyTableBody"></tbody>
+            </table>
+            <div id="emptyHistoryMsg" class="text-center py-4 text-xs text-slate-400 font-mono">No data yet.</div>
+        </div>
+    </div>
+    
+    <div class="mt-6">
+        <h3 class="text-sm font-bold text-slate-500 uppercase mb-4">Global Alpha Feed</h3>
+        <div id="newsContainer" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+             </div>
+    </div>
+
   </main>
 
   <script>
-    // --- TURBO CONFIGURATION ---
+    // --- STABLE CONFIGURATION ---
     let CONFIG = { 
-        HOLDINGS: 87110, 
-        INITIAL_CAPITAL: 29286382, 
+        HOLDINGS: 25071.97, 
+        INITIAL_CAPITAL: 28970053, 
         PAIR_CODE: 'eden_idr',
-        API_URL: 'https://indodax.com/api/ticker/eden_idr', 
-        NEWS_API: 'https://api.rss2json.com/v1/api.json?rss_url=https://cointelegraph.com/rss', 
-        
-        // SPEED UPGRADE: 1.3 Seconds (Batasan aman agar proxy tidak memblokir)
-        REFRESH_RATE: 1300, 
-        
-        MAX_HISTORY: 300,
-        MAX_LOGS: 20
+        // Safe refresh rate (3.5s) to avoid proxy bans
+        REFRESH_RATE: 3500, 
+        MAX_HISTORY: 50
     };
 
-    // PROXY PRIORITY (Corsproxy.io usually faster)
-    const PROXIES = ['https://corsproxy.io/?', 'https://api.allorigins.win/raw?url='];
+    // ROTATING PROXY LIST (Anti-Blocking)
+    const PROXIES = [
+        'https://api.allorigins.win/raw?url=',     // Primary (Most Stable)
+        'https://corsproxy.io/?',                  // Secondary (Fast)
+        'https://api.codetabs.com/v1/proxy?quest=' // Backup
+    ];
     let activeProxyIndex = 0;
+    let failCount = 0;
 
     // UI ELEMENTS
     const ui = { 
@@ -306,315 +184,161 @@
         assetName: document.getElementById('assetName'),
         change: document.getElementById('price-change'), 
         holdings: document.getElementById('holdings'), 
-        avgBuy: document.getElementById('avgBuy'), 
-        value: document.getElementById('currentValue'), 
-        costBasis: document.getElementById('costBasisDisplay'),
-        status: document.getElementById('status'), 
+        currentValue: document.getElementById('currentValue'), 
         pnlRp: document.getElementById('pnlRp'), 
         pnlPct: document.getElementById('pnlPct'), 
-        advice: document.getElementById('advice'), 
-        lastUpdated: document.getElementById('lastUpdated'), 
-        loading: document.getElementById('loadingBox'), 
-        sparkCanvas: document.getElementById('sparkline'), 
-        copyBtn: document.getElementById('copyPrice'), 
-        resetChartBtn: document.getElementById('resetChartBtn'),
+        loading: document.getElementById('loadingBox'),
+        loadingText: document.getElementById('loadingText'),
+        status: document.getElementById('connectionStatus'),
+        proxyStatus: document.getElementById('proxyStatus'),
+        advice: document.getElementById('advice'),
         inputCoin: document.getElementById('coinSelector'),
         inputHoldings: document.getElementById('inputHoldings'),
         inputCapital: document.getElementById('inputCapital'),
-        applyBtn: document.getElementById('applyConfigBtn'),
-        launchBtn: document.getElementById('launchExchangeBtn'),
-        refreshBtn: document.getElementById('refreshBtn'),
         historyBody: document.getElementById('historyTableBody'),
         emptyHistoryMsg: document.getElementById('emptyHistoryMsg'),
         newsContainer: document.getElementById('newsContainer')
     };
 
     const fmt = { 
-        idr: (v) => new Intl.NumberFormat('id-ID', { style:'currency', currency:'IDR', maximumFractionDigits:0 }).format(Math.round(v)), 
-        idrPrice: (v) => new Intl.NumberFormat('id-ID', { style:'currency', currency:'IDR', maximumFractionDigits: (v < 1000 ? 2 : 0) }).format(v),
-        num: (v, d=0) => Number(v).toLocaleString('id-ID', {maximumFractionDigits:d, minimumFractionDigits:0}) 
+        idr: (v) => new Intl.NumberFormat('id-ID', { style:'currency', currency:'IDR', maximumFractionDigits:0 }).format(v), 
+        num: (v) => Number(v).toLocaleString('id-ID') 
     };
 
-    // --- STATE MANAGEMENT ---
-    let savedChartData = JSON.parse(localStorage.getItem('pica_chart_data')) || { labels: [], values: [] };
-    let savedLogs = JSON.parse(localStorage.getItem('pica_table_logs')) || [];
-
-    let state = { 
-        lastPrice: null, 
-        historyLabels: savedChartData.labels, 
-        historyValues: savedChartData.values, 
-        logs: savedLogs,
-        chart: null,
-        isFetching: false 
-    };
-
-    // --- INITIALIZATION ---
-    function init() {
-        initChart();
-        initBackgroundChart(); 
-        loadAllPairs(); 
-        updateConfigFromInputs(); 
-        renderHistoryTable(); 
-        
-        fetchMarketData();
-        fetchAlphaNews(); 
-        
-        setInterval(fetchMarketData, CONFIG.REFRESH_RATE);
-        setInterval(fetchAlphaNews, 60000); 
-    }
-
-    // --- 1. CONFIG & PAIRS ---
-    async function loadAllPairs() {
-        try {
-            const res = await fetch(PROXIES[0] + encodeURIComponent('https://indodax.com/api/summaries'));
-            const data = await res.json();
-            const tickers = data.tickers;
-            
-            ui.inputCoin.innerHTML = '<option value="eden_idr" selected>EDEN - OpenEden</option>';
-            Object.keys(tickers).sort().forEach(key => {
-                if(key === 'eden_idr') return; 
-                if(key.endsWith('_idr')) {
-                    const symbol = key.replace('_idr', '').toUpperCase();
-                    const option = document.createElement('option');
-                    option.value = key;
-                    option.text = `${symbol} - ${key.toUpperCase()}`;
-                    ui.inputCoin.appendChild(option);
-                }
-            });
-        } catch(e) { console.error("Pairs Error", e); }
-    }
-
-    function updateConfigFromInputs() {
-        const pair = ui.inputCoin.value;
-        const symbol = pair.split('_')[0].toUpperCase();
-        CONFIG.PAIR_CODE = pair;
-        CONFIG.API_URL = `https://indodax.com/api/ticker/${pair}`;
-        CONFIG.HOLDINGS = parseFloat(ui.inputHoldings.value) || 0;
-        CONFIG.INITIAL_CAPITAL = parseFloat(ui.inputCapital.value) || 0;
-        
-        ui.assetName.textContent = symbol;
-        ui.holdings.textContent = fmt.num(CONFIG.HOLDINGS) + ' ' + symbol;
-        ui.costBasis.textContent = fmt.idr(CONFIG.INITIAL_CAPITAL);
-        const avg = CONFIG.HOLDINGS > 0 ? CONFIG.INITIAL_CAPITAL / CONFIG.HOLDINGS : 0;
-        ui.avgBuy.textContent = fmt.idrPrice(avg);
-        ui.launchBtn.href = `https://indodax.com/market/${pair.toUpperCase().replace('_', '')}`;
-        ui.loading.style.display = 'flex';
-        ui.price.textContent = '...';
-    }
-
-    ui.applyBtn.addEventListener('click', () => {
-        state.historyValues = []; state.historyLabels = []; state.logs = [];
-        localStorage.removeItem('pica_chart_data');
-        localStorage.removeItem('pica_table_logs');
-        updateConfigFromInputs();
-        renderHistoryTable();
-        updateChart(0, false, true);
-        ui.status.textContent = 'UPDATING...';
-        setTimeout(fetchMarketData, 200);
-    });
-
-    ui.refreshBtn.addEventListener('click', () => {
-        ui.status.textContent = 'SYNCING...';
-        fetchMarketData();
-        fetchAlphaNews();
-    });
-
-    // --- 2. MARKET DATA & VISUALS ---
+    // CHART INIT
+    let chart;
     function initChart() {
-        const ctx = ui.sparkCanvas.getContext('2d');
-        state.chart = new Chart(ctx, { 
-            type: 'line', 
-            data: { labels: state.historyLabels, datasets: [{ label: 'Valuation', data: state.historyValues, borderColor: '#9333ea', borderWidth: 2, fill: true, backgroundColor: 'rgba(147, 51, 234, 0.05)', pointRadius: 0, tension: 0.1 }] }, 
-            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: false, tooltip: { mode: 'index', intersect: false } }, scales: { x: { display: true, ticks: { display: false } }, y: { display: false, grace: '5%' } }, layout: { padding: 0 } } 
+        const ctx = document.getElementById('sparkline').getContext('2d');
+        chart = new Chart(ctx, {
+            type: 'line',
+            data: { labels: [], datasets: [{ data: [], borderColor: '#9333ea', borderWidth: 2, tension: 0.1, pointRadius: 0, fill: true, backgroundColor: 'rgba(147, 51, 234, 0.05)' }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: false }, scales: { x: { display: false }, y: { display: false } } }
         });
     }
 
-    function initBackgroundChart() {
-        const ctxBg = document.getElementById('bgChartCanvas').getContext('2d');
-        const generateData = () => { let data = []; let prev = 100; for(let i=0; i<30; i++) { prev += (Math.random() - 0.5) * 10; data.push(prev); } return data; };
-        const grad = ctxBg.createLinearGradient(0, 0, 0, window.innerHeight);
-        grad.addColorStop(0, 'rgba(147, 51, 234, 0.1)'); grad.addColorStop(1, 'rgba(255, 255, 255, 0)');
-        new Chart(ctxBg, { type: 'line', data: { labels: Array(30).fill(''), datasets: [{ data: generateData(), borderColor: '#9333ea', borderWidth: 4, tension: 0.4, fill: true, backgroundColor: grad, pointRadius: 0 }] }, options: { responsive: true, maintainAspectRatio: false, animation: { duration: 3000, easing: 'linear' }, plugins: { legend: false }, scales: { x: { display: false }, y: { display: false } } } });
-    }
-
+    // DATA FETCHING ENGINE
     async function fetchMarketData() {
-        if(state.isFetching) return; // Prevent request pile-up
-        state.isFetching = true;
-
-        const proxyUrl = PROXIES[activeProxyIndex];
-        const cacheBuster = '&t=' + new Date().getTime();
+        ui.loading.classList.remove('hidden');
+        ui.loadingText.textContent = `SYNCING (NODE ${activeProxyIndex + 1})...`;
         
+        const targetUrl = `https://indodax.com/api/ticker/${CONFIG.PAIR_CODE}`;
+        // Smart Proxy Selector
+        const proxy = PROXIES[activeProxyIndex];
+        const finalUrl = proxy + encodeURIComponent(targetUrl) + '&t=' + Date.now();
+
         try {
-            let finalUrl = proxyUrl + (proxyUrl.includes('corsproxy') ? CONFIG.API_URL : encodeURIComponent(CONFIG.API_URL)) + cacheBuster;
-            if(proxyUrl.includes('corsproxy')) finalUrl = proxyUrl + CONFIG.API_URL;
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 5000); // 5s timeout
             
-            const controller = new AbortController(); const id = setTimeout(() => controller.abort(), 3000); 
-            const res = await fetch(proxyUrl + encodeURIComponent(CONFIG.API_URL) + cacheBuster, { signal: controller.signal });
-            clearTimeout(id);
+            const res = await fetch(finalUrl, { signal: controller.signal });
+            clearTimeout(timeoutId);
+
+            if (!res.ok) throw new Error("Proxy Error");
             
-            if(!res.ok) throw new Error('Network error');
             const data = await res.json();
             
-            if(data.ticker && data.ticker.last) {
-                updateDashboard(parseFloat(data.ticker.last));
-                // Status indicator blink
-                ui.status.classList.add('opacity-50'); setTimeout(() => ui.status.classList.remove('opacity-50'), 200);
-            }
-        } catch(e) {
-            // Optional: Auto switch proxy logic here if needed
-        } finally {
-            state.isFetching = false;
-        }
-    }
+            // Validate Data
+            if (!data.ticker || !data.ticker.last) throw new Error("Invalid Pair");
 
-    function updateDashboard(currentPrice) {
-        ui.loading.style.display = 'none';
-        const currentValue = currentPrice * CONFIG.HOLDINGS;
-        const pnl = currentValue - CONFIG.INITIAL_CAPITAL;
-        const pnlPct = CONFIG.INITIAL_CAPITAL > 0 ? (pnl / CONFIG.INITIAL_CAPITAL) * 100 : 0;
-        
-        // VISUAL FLASH: Green if price up, Red if down
-        if(state.lastPrice && state.lastPrice !== currentPrice) {
-            const isUp = currentPrice > state.lastPrice;
-            ui.price.style.color = isUp ? '#10b981' : '#f43f5e'; 
-            setTimeout(() => ui.price.style.color = '#0F172A', 400); 
-        }
-
-        ui.price.textContent = fmt.idrPrice(currentPrice);
-        ui.value.textContent = fmt.idr(currentValue);
-        ui.pnlRp.textContent = (pnl >= 0 ? '+' : '') + fmt.idr(pnl);
-        ui.pnlPct.textContent = (pnl >= 0 ? '+' : '') + pnlPct.toFixed(2) + '%';
-        
-        const isProfitable = pnl >= 0;
-        const colorClass = isProfitable ? 'text-emerald-600' : 'text-rose-600';
-        ui.pnlRp.className = `text-xl font-mono font-bold ${colorClass}`;
-        ui.pnlPct.className = `text-xl font-mono font-bold ${colorClass}`;
-        ui.status.textContent = isProfitable ? 'PROFITABLE' : 'UNDERWATER';
-        ui.status.className = `font-bold text-xs px-2 py-1 rounded border ${isProfitable ? 'bg-emerald-100 text-emerald-700 border-emerald-200' : 'bg-rose-100 text-rose-700 border-rose-200'} inline-block uppercase transition-all duration-300`;
-
-        if(state.lastPrice && state.lastPrice !== currentPrice) {
-            const delta = ((currentPrice - state.lastPrice) / state.lastPrice) * 100;
-            const sign = delta >= 0 ? '▲' : '▼';
-            ui.change.innerHTML = `<span class="${delta >= 0 ? 'text-emerald-600' : 'text-rose-600'} font-bold font-mono text-sm">${sign} ${Math.abs(delta).toFixed(2)}%</span> <span class="text-slate-400 text-xs ml-1">tick drift</span>`;
-        }
-        
-        ui.advice.innerHTML = `<span class="text-emerald-400">@SYSTEM:</span> Market price updated to ${fmt.idrPrice(currentPrice)}. PnL Delta: ${pnlPct.toFixed(2)}%.`;
-
-        updateChart(currentValue, isProfitable); 
-        addToHistoryLog(currentPrice, currentValue, pnl, pnlPct); 
-        ui.lastUpdated.textContent = new Date().toLocaleTimeString('id-ID');
-        state.lastPrice = currentPrice;
-    }
-
-    function updateChart(currentValuation, isProfitable, reset = false) {
-        if(!state.chart) return;
-        if(reset) { state.chart.data.datasets[0].data = []; state.chart.data.labels = []; state.chart.update(); return; }
-
-        const now = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-        // Only update chart if data changed (prevent flatline spam)
-        if(state.historyValues.length === 0 || state.historyValues[state.historyValues.length - 1] !== currentValuation) {
-            state.historyValues.push(currentValuation); state.historyLabels.push(now);
-            if(state.historyValues.length > CONFIG.MAX_HISTORY) { state.historyValues.shift(); state.historyLabels.shift(); }
-            localStorage.setItem('pica_chart_data', JSON.stringify({ labels: state.historyLabels, values: state.historyValues }));
+            // SUCCESS
+            failCount = 0;
+            updateDashboard(parseFloat(data.ticker.last));
             
-            state.chart.data.labels = state.historyLabels;
-            state.chart.data.datasets[0].data = state.historyValues;
-            state.chart.data.datasets[0].borderColor = isProfitable ? '#10b981' : '#f43f5e'; 
-            const ctx = ui.sparkCanvas.getContext('2d'); const gradient = ctx.createLinearGradient(0, 0, 0, 100);
-            gradient.addColorStop(0, isProfitable ? 'rgba(16, 185, 129, 0.2)' : 'rgba(244, 63, 94, 0.2)'); gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
-            state.chart.data.datasets[0].backgroundColor = gradient;
-            state.chart.update('none');
+            ui.status.innerHTML = `<span class="text-emerald-600">● LIVE</span>`;
+            ui.proxyStatus.textContent = `Node: Active (${new URL(proxy).hostname})`;
+            ui.proxyStatus.className = "text-[10px] font-mono p-2 bg-emerald-50 text-emerald-600 rounded mb-2";
+
+        } catch (e) {
+            console.error(e);
+            failCount++;
+            ui.status.innerHTML = `<span class="text-rose-500">● RETRYING...</span>`;
+            
+            // Auto-Switch Proxy if failed
+            if(failCount > 1) {
+                activeProxyIndex = (activeProxyIndex + 1) % PROXIES.length;
+                failCount = 0;
+                ui.advice.textContent = `Switched to Node ${activeProxyIndex + 1} due to congestion.`;
+            }
+        } finally {
+            ui.loading.classList.add('hidden');
         }
     }
 
-    // --- 3. LOGGING ---
-    function addToHistoryLog(price, value, pnl, pnlPct) {
-        if(state.logs.length > 0 && state.logs[0].price === price) return;
-        const newLog = { time: new Date().toLocaleTimeString('id-ID'), price: price, value: value, pnl: pnl, pnlPct: pnlPct };
-        state.logs.unshift(newLog); 
-        if (state.logs.length > CONFIG.MAX_LOGS) state.logs.pop(); 
-        localStorage.setItem('pica_table_logs', JSON.stringify(state.logs));
-        renderHistoryTable();
-    }
+    function updateDashboard(price) {
+        const val = price * CONFIG.HOLDINGS;
+        const pnl = val - CONFIG.INITIAL_CAPITAL;
+        const roi = (pnl / CONFIG.INITIAL_CAPITAL) * 100;
+        const isProfit = pnl >= 0;
 
-    function renderHistoryTable() {
-        ui.historyBody.innerHTML = '';
-        if (state.logs.length === 0) { ui.emptyHistoryMsg.classList.remove('hidden'); return; } 
-        else { ui.emptyHistoryMsg.classList.add('hidden'); }
+        ui.price.textContent = fmt.idr(price);
+        ui.currentValue.textContent = fmt.idr(val);
+        ui.pnlRp.textContent = (isProfit ? '+' : '') + fmt.idr(pnl);
+        ui.pnlPct.textContent = (isProfit ? '+' : '') + roi.toFixed(2) + '%';
+        
+        ui.pnlRp.className = `text-lg font-mono font-bold ${isProfit ? 'text-emerald-600' : 'text-rose-600'}`;
+        ui.pnlPct.className = `text-lg font-mono font-bold ${isProfit ? 'text-emerald-600' : 'text-rose-600'}`;
+        
+        ui.advice.innerHTML = `> Market Update Received.<br>> Price: ${price}<br>> Delta: ${roi.toFixed(2)}%`;
 
-        state.logs.forEach(log => {
-            const row = document.createElement('tr');
-            const isProfit = log.pnl >= 0;
-            const pnlColor = isProfit ? 'text-emerald-600' : 'text-rose-600';
-            row.className = "hover:bg-slate-50 transition-colors";
-            row.innerHTML = `
-                <td class="text-slate-500">${log.time}</td>
-                <td class="font-bold text-slate-700">${fmt.idrPrice(log.price)}</td>
-                <td class="text-right text-slate-600">${fmt.idr(log.value)}</td>
-                <td class="text-right font-bold ${pnlColor}">${(log.pnl >= 0 ? '+' : '')}${fmt.idr(log.pnl)}</td>
-                <td class="text-right font-bold ${pnlColor}">${(log.pnlPct >= 0 ? '+' : '')}${log.pnlPct.toFixed(2)}%</td>
-            `;
-            ui.historyBody.appendChild(row);
-        });
-    }
-
-    ui.resetChartBtn.addEventListener('click', () => { 
-        if(confirm('Clear history?')) { 
-            localStorage.removeItem('pica_chart_data'); state.historyValues = []; state.historyLabels = []; updateChart(state.lastPrice * CONFIG.HOLDINGS, true, true);
-            localStorage.removeItem('pica_table_logs'); state.logs = []; renderHistoryTable();
+        // Update Chart
+        const now = new Date().toLocaleTimeString();
+        if (chart.data.datasets[0].data.length > 50) {
+            chart.data.labels.shift();
+            chart.data.datasets[0].data.shift();
         }
+        chart.data.labels.push(now);
+        chart.data.datasets[0].data.push(val);
+        chart.data.datasets[0].borderColor = isProfit ? '#10b981' : '#f43f5e';
+        chart.data.datasets[0].backgroundColor = isProfit ? 'rgba(16, 185, 129, 0.1)' : 'rgba(244, 63, 94, 0.1)';
+        chart.update();
+
+        // Update Log
+        const row = document.createElement('tr');
+        row.innerHTML = `<td class="text-slate-500">${now}</td><td class="font-bold">${fmt.idr(price)}</td><td class="text-right">${fmt.idr(val)}</td><td class="text-right ${isProfit?'text-emerald-600':'text-rose-600'}">${roi.toFixed(2)}%</td>`;
+        ui.historyBody.prepend(row);
+        if(ui.historyBody.children.length > 20) ui.historyBody.lastChild.remove();
+        ui.emptyHistoryMsg.classList.add('hidden');
+    }
+
+    // NEWS FETCHER
+    async function fetchNews() {
+        try {
+            const res = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https://cointelegraph.com/rss');
+            const data = await res.json();
+            ui.newsContainer.innerHTML = data.items.slice(0,3).map(item => `
+                <a href="${item.link}" target="_blank" class="block bg-white p-3 rounded shadow hover:shadow-md transition">
+                    <h4 class="text-xs font-bold text-slate-700 line-clamp-2">${item.title}</h4>
+                    <span class="text-[10px] text-slate-400 mt-1 block">Cointelegraph • Alpha</span>
+                </a>
+            `).join('');
+        } catch(e) {}
+    }
+
+    // EVENT LISTENERS
+    document.getElementById('applyConfigBtn').addEventListener('click', () => {
+        CONFIG.PAIR_CODE = ui.inputCoin.value;
+        CONFIG.HOLDINGS = parseFloat(ui.inputHoldings.value);
+        CONFIG.INITIAL_CAPITAL = parseFloat(ui.inputCapital.value);
+        
+        ui.assetName.textContent = ui.inputCoin.options[ui.inputCoin.selectedIndex].text.split(' - ')[0];
+        ui.holdings.textContent = fmt.num(CONFIG.HOLDINGS);
+        
+        // Reset Logic
+        chart.data.labels = []; chart.data.datasets[0].data = []; chart.update();
+        ui.historyBody.innerHTML = ''; activeProxyIndex = 0;
+        
+        fetchMarketData();
     });
 
-    // --- 4. NEWS ENGINE ---
-    async function fetchAlphaNews() {
-        try {
-            const res = await fetch(CONFIG.NEWS_API);
-            const data = await res.json();
-            if(data.status !== 'ok') throw new Error('RSS Failed');
-            let htmlContent = '';
-            const items = data.items.slice(0, 3);
+    document.getElementById('refreshBtn').addEventListener('click', fetchMarketData);
 
-            items.forEach(item => {
-                const title = item.title;
-                const link = item.link;
-                const date = new Date(item.pubDate).toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'});
-                let imgUrl = item.thumbnail || item.enclosure?.link || 'https://cointelegraph.com/assets/img/logo.png';
+    // INIT
+    initChart();
+    ui.holdings.textContent = fmt.num(CONFIG.HOLDINGS);
+    fetchMarketData();
+    fetchNews();
+    setInterval(fetchMarketData, CONFIG.REFRESH_RATE);
 
-                let badge = 'ALPHA';
-                let badgeColor = 'bg-blue-600';
-                const lowerTitle = title.toLowerCase();
-                if (lowerTitle.includes('etf') || lowerTitle.includes('approved') || lowerTitle.includes('bull') || lowerTitle.includes('high')) {
-                    badge = 'BULLISH'; badgeColor = 'bg-emerald-500';
-                } else if (lowerTitle.includes('hack') || lowerTitle.includes('ban') || lowerTitle.includes('sec') || lowerTitle.includes('down')) {
-                    badge = 'CRITICAL'; badgeColor = 'bg-rose-500';
-                } else if (lowerTitle.includes('launch') || lowerTitle.includes('mainnet')) {
-                    badge = 'CATALYST'; badgeColor = 'bg-purple-500';
-                }
-
-                htmlContent += `
-                <a href="${link}" target="_blank" class="glass-panel rounded-xl overflow-hidden group block hover:ring-2 hover:ring-purple-400 transition-all">
-                    <div class="h-32 w-full overflow-hidden relative">
-                        <img src="${imgUrl}" class="w-full h-full object-cover transform group-hover:scale-110 transition duration-500" onerror="this.src='https://placehold.co/600x400?text=News'">
-                        <div class="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-black/80 to-transparent"></div>
-                        <div class="absolute top-2 right-2 text-white text-[9px] font-bold px-2 py-1 rounded shadow ${badgeColor}">${badge}</div>
-                    </div>
-                    <div class="p-4">
-                        <h4 class="text-sm font-bold text-slate-800 line-clamp-2 leading-snug mb-2 group-hover:text-purple-600">${title}</h4>
-                        <div class="flex justify-between items-center">
-                            <span class="text-[10px] text-slate-400 font-mono">${date}</span>
-                            <span class="text-[9px] font-bold text-slate-300 uppercase">EN - DIRECT FEED</span>
-                        </div>
-                    </div>
-                </a>`;
-            });
-            ui.newsContainer.innerHTML = htmlContent;
-        } catch (e) {
-            console.error("News Error:", e);
-            ui.newsContainer.innerHTML = `<div class="col-span-3 text-center py-8 opacity-50"><p class="text-xs font-mono text-slate-400">CONNECTING TO ALPHA NODE...</p><button onclick="fetchAlphaNews()" class="mt-2 text-[10px] underline text-blue-500">Retry Manual</button></div>`;
-        }
-    }
-
-    init();
   </script>
 </body>
 </html>
