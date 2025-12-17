@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>PICA Dashboard - Stable Link</title>
+  <title>PICA Dashboard - Profit Log Update</title>
   <meta name="robots" content="noindex,nofollow">
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -141,8 +141,7 @@
                         <th class="pb-2">Time</th>
                         <th class="pb-2">Price</th>
                         <th class="pb-2 text-right">Valuation</th>
-                        <th class="pb-2 text-right">PnL</th>
-                    </tr>
+                        <th class="pb-2 text-right">Profit (Rp)</th> <th class="pb-2 text-right">ROI (%)</th>    </tr>
                 </thead>
                 <tbody id="historyTableBody"></tbody>
             </table>
@@ -222,7 +221,6 @@
         ui.loadingText.textContent = `SYNCING (NODE ${activeProxyIndex + 1})...`;
         
         const targetUrl = `https://indodax.com/api/ticker/${CONFIG.PAIR_CODE}`;
-        // Smart Proxy Selector
         const proxy = PROXIES[activeProxyIndex];
         const finalUrl = proxy + encodeURIComponent(targetUrl) + '&t=' + Date.now();
 
@@ -237,7 +235,6 @@
             
             const data = await res.json();
             
-            // Validate Data
             if (!data.ticker || !data.ticker.last) throw new Error("Invalid Pair");
 
             // SUCCESS
@@ -292,9 +289,15 @@
         chart.data.datasets[0].backgroundColor = isProfit ? 'rgba(16, 185, 129, 0.1)' : 'rgba(244, 63, 94, 0.1)';
         chart.update();
 
-        // Update Log
+        // Update Log (MODIFIED TO SHOW PROFIT AMOUNT)
         const row = document.createElement('tr');
-        row.innerHTML = `<td class="text-slate-500">${now}</td><td class="font-bold">${fmt.idr(price)}</td><td class="text-right">${fmt.idr(val)}</td><td class="text-right ${isProfit?'text-emerald-600':'text-rose-600'}">${roi.toFixed(2)}%</td>`;
+        row.innerHTML = `
+            <td class="text-slate-500">${now}</td>
+            <td class="font-bold">${fmt.idr(price)}</td>
+            <td class="text-right">${fmt.idr(val)}</td>
+            <td class="text-right font-bold ${isProfit?'text-emerald-600':'text-rose-600'}">${isProfit ? '+' : ''}${fmt.idr(pnl)}</td>
+            <td class="text-right text-xs ${isProfit?'text-emerald-600':'text-rose-600'}">${roi.toFixed(2)}%</td>
+        `;
         ui.historyBody.prepend(row);
         if(ui.historyBody.children.length > 20) ui.historyBody.lastChild.remove();
         ui.emptyHistoryMsg.classList.add('hidden');
@@ -323,7 +326,6 @@
         ui.assetName.textContent = ui.inputCoin.options[ui.inputCoin.selectedIndex].text.split(' - ')[0];
         ui.holdings.textContent = fmt.num(CONFIG.HOLDINGS);
         
-        // Reset Logic
         chart.data.labels = []; chart.data.datasets[0].data = []; chart.update();
         ui.historyBody.innerHTML = ''; activeProxyIndex = 0;
         
