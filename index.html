@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>PICA Dashboard - Profit Log Update</title>
+  <title>PICA Dashboard - Advanced Trading Analytics</title>
   <meta name="robots" content="noindex,nofollow">
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -12,6 +12,10 @@
   
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
+  <!-- TradingView Libraries -->
+  <script src="https://s3.tradingview.com/tv.js"></script>
+  <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
   
   <script>
     tailwind.config = {
@@ -39,6 +43,91 @@
         padding: 8px 12px; font-family: 'JetBrains Mono', monospace; font-size: 12px; width: 100%;
     }
     .history-table td { padding: 8px 0; border-bottom: 1px solid #f1f5f9; font-family: 'JetBrains Mono', monospace; font-size: 12px; }
+    
+    /* Tab Navigation Styles */
+    .tab-btn {
+      padding: 0.75rem 1.5rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      border-radius: 0.5rem;
+      transition: all 0.3s;
+      background: transparent;
+      color: #64748b;
+      border: 1px solid transparent;
+    }
+    .tab-btn:hover {
+      background: rgba(147, 51, 234, 0.1);
+      color: #9333ea;
+    }
+    .tab-btn.active {
+      background: #9333ea;
+      color: white;
+      border-color: #9333ea;
+    }
+    
+    /* View Container */
+    .view-container {
+      display: block;
+      animation: fadeIn 0.3s ease-in;
+    }
+    .view-container.hidden {
+      display: none;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    /* Chart Containers */
+    .mini-chart-container {
+      height: 200px;
+      margin-top: 1rem;
+      border-radius: 0.5rem;
+      overflow: hidden;
+      background: rgba(255, 255, 255, 0.3);
+    }
+    
+    .main-chart-container {
+      height: 600px;
+      border-radius: 1rem;
+      overflow: hidden;
+      background: white;
+    }
+    
+    /* Timeframe Buttons */
+    .timeframe-btn {
+      padding: 0.5rem 1rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      border-radius: 0.375rem;
+      background: rgba(255, 255, 255, 0.5);
+      border: 1px solid #e2e8f0;
+      color: #64748b;
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+    .timeframe-btn:hover {
+      background: rgba(147, 51, 234, 0.1);
+      border-color: #9333ea;
+      color: #9333ea;
+    }
+    .timeframe-btn.active {
+      background: #9333ea;
+      border-color: #9333ea;
+      color: white;
+    }
+    
+    /* Fullscreen styles */
+    .fullscreen-chart {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 9999;
+      background: white;
+    }
   </style>
 </head>
 <body class="antialiased font-sans">
@@ -59,6 +148,17 @@
 
   <main class="pt-24 pb-12 px-4 sm:px-6 max-w-7xl mx-auto min-h-screen">
     
+    <!-- Tab Navigation -->
+    <div class="glass-panel rounded-xl p-2 mb-6 flex gap-2">
+        <button class="tab-btn active" onclick="switchView('dashboard')">
+            📊 Dashboard
+        </button>
+        <button class="tab-btn" onclick="switchView('chart')">
+            📈 Chart Analysis
+        </button>
+    </div>
+
+    <!-- Configuration Panel -->
     <div class="glass-panel rounded-xl p-4 mb-6 border-l-4 border-purple-500">
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
             <div>
@@ -86,93 +186,162 @@
         </div>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
-        
-        <div class="md:col-span-4 glass-panel rounded-2xl p-6 flex flex-col justify-between h-64">
-            <div>
-                <div class="flex justify-between items-center mb-2">
-                    <span class="text-[10px] font-bold text-purple-600 bg-purple-50 px-2 py-0.5 rounded uppercase">Live Market</span>
-                </div>
-                <h2 id="assetName" class="text-4xl font-extrabold text-slate-900">EDEN</h2>
-                <div class="mt-4">
-                    <div id="loadingBox" class="flex items-center gap-2 text-slate-400 text-xs font-mono hidden">
-                        <span class="animate-spin">↻</span> <span id="loadingText">CONNECTING...</span>
+    <!-- Dashboard View -->
+    <div id="dashboardView" class="view-container">
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+            
+            <!-- Live Market Panel with Mini Chart -->
+            <div class="md:col-span-4 glass-panel rounded-2xl p-6 flex flex-col justify-between">
+                <div>
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-[10px] font-bold text-purple-600 bg-purple-50 px-2 py-0.5 rounded uppercase">Live Market</span>
                     </div>
-                    <div id="price" class="text-4xl font-mono font-bold text-slate-900 tracking-tighter">--</div>
-                    <div id="price-change" class="text-sm font-medium mt-2 text-slate-400">Waiting for signal...</div>
+                    <h2 id="assetName" class="text-4xl font-extrabold text-slate-900">EDEN</h2>
+                    <div class="mt-4">
+                        <div id="loadingBox" class="flex items-center gap-2 text-slate-400 text-xs font-mono hidden">
+                            <span class="animate-spin">↻</span> <span id="loadingText">CONNECTING...</span>
+                        </div>
+                        <div id="price" class="text-4xl font-mono font-bold text-slate-900 tracking-tighter">--</div>
+                        <div id="price-change" class="text-sm font-medium mt-2 text-slate-400">Waiting for signal...</div>
+                    </div>
+                    
+                    <!-- Mini Lightweight Chart -->
+                    <div id="miniChartContainer" class="mini-chart-container"></div>
+                </div>
+                <div class="flex justify-between border-t border-slate-100 pt-4 mt-4">
+                    <div><p class="text-[10px] text-slate-400 uppercase font-bold">Holdings</p><p id="holdings" class="font-mono text-sm font-bold text-slate-700">...</p></div>
+                    <div class="text-right"><p class="text-[10px] text-slate-400 uppercase font-bold">Valuation</p><p id="currentValue" class="font-mono text-sm font-bold text-slate-700">...</p></div>
                 </div>
             </div>
-            <div class="flex justify-between border-t border-slate-100 pt-4">
-                <div><p class="text-[10px] text-slate-400 uppercase font-bold">Holdings</p><p id="holdings" class="font-mono text-sm font-bold text-slate-700">...</p></div>
-                <div class="text-right"><p class="text-[10px] text-slate-400 uppercase font-bold">Valuation</p><p id="currentValue" class="font-mono text-sm font-bold text-slate-700">...</p></div>
+
+            <!-- Equity Curve Panel -->
+            <div class="md:col-span-5 glass-panel rounded-2xl p-6 flex flex-col h-auto">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xs font-bold text-slate-400 uppercase">Equity Curve</h3>
+                    <span id="lastUpdated" class="text-[10px] font-mono text-slate-400">--:--:--</span>
+                </div>
+                <div class="grid grid-cols-2 gap-4 mb-2">
+                     <div><p class="text-[10px] text-slate-400 uppercase font-bold">PnL (Rp)</p><div id="pnlRp" class="text-lg font-mono font-bold text-slate-700">...</div></div>
+                     <div><p class="text-[10px] text-slate-400 uppercase font-bold">ROI %</p><div id="pnlPct" class="text-lg font-mono font-bold text-slate-700">...</div></div>
+                </div>
+                <div class="flex-1 relative w-full overflow-hidden" style="min-height: 200px;">
+                    <canvas id="sparkline"></canvas>
+                </div>
+            </div>
+
+            <!-- Network Status Panel -->
+            <div class="md:col-span-3 glass-panel rounded-2xl p-6 flex flex-col h-auto">
+                <h3 class="text-xs font-bold text-slate-400 uppercase mb-4">Network Status</h3>
+                <div class="flex-1">
+                    <div id="proxyStatus" class="text-[10px] font-mono p-2 bg-slate-100 rounded text-slate-500 mb-2">Node: Initializing...</div>
+                    <div id="advice" class="text-[10px] font-mono p-2 bg-slate-900 text-green-400 rounded leading-relaxed">System ready. Waiting for data stream...</div>
+                </div>
+                <button id="refreshBtn" class="w-full mt-4 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold text-xs py-2 rounded transition">FORCE REFRESH</button>
             </div>
         </div>
 
-        <div class="md:col-span-5 glass-panel rounded-2xl p-6 flex flex-col h-64">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xs font-bold text-slate-400 uppercase">Equity Curve</h3>
-                <span id="lastUpdated" class="text-[10px] font-mono text-slate-400">--:--:--</span>
-            </div>
-            <div class="grid grid-cols-2 gap-4 mb-2">
-                 <div><p class="text-[10px] text-slate-400 uppercase font-bold">PnL (Rp)</p><div id="pnlRp" class="text-lg font-mono font-bold text-slate-700">...</div></div>
-                 <div><p class="text-[10px] text-slate-400 uppercase font-bold">ROI %</p><div id="pnlPct" class="text-lg font-mono font-bold text-slate-700">...</div></div>
-            </div>
-            <div class="flex-1 relative w-full overflow-hidden">
-                <canvas id="sparkline"></canvas>
+        <!-- Transaction Log -->
+        <div class="mt-6 glass-panel rounded-xl p-5">
+            <h3 class="text-sm font-bold text-slate-500 uppercase mb-4 flex items-center gap-2">Transaction Log <span class="text-[10px] bg-slate-100 px-2 rounded">LIVE</span></h3>
+            <div class="overflow-x-auto max-h-60 overflow-y-auto">
+                <table class="w-full history-table text-left">
+                    <thead>
+                        <tr class="text-slate-400 border-b border-slate-200">
+                            <th class="pb-2">Time</th>
+                            <th class="pb-2">Price</th>
+                            <th class="pb-2 text-right">Valuation</th>
+                            <th class="pb-2 text-right">Profit (Rp)</th>
+                            <th class="pb-2 text-right">ROI (%)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyTableBody"></tbody>
+                </table>
+                <div id="emptyHistoryMsg" class="text-center py-4 text-xs text-slate-400 font-mono">No data yet.</div>
             </div>
         </div>
-
-        <div class="md:col-span-3 glass-panel rounded-2xl p-6 flex flex-col h-64">
-            <h3 class="text-xs font-bold text-slate-400 uppercase mb-4">Network Status</h3>
-            <div class="flex-1">
-                <div id="proxyStatus" class="text-[10px] font-mono p-2 bg-slate-100 rounded text-slate-500 mb-2">Node: Initializing...</div>
-                <div id="advice" class="text-[10px] font-mono p-2 bg-slate-900 text-green-400 rounded leading-relaxed">System ready. Waiting for data stream...</div>
-            </div>
-            <button id="refreshBtn" class="w-full mt-4 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold text-xs py-2 rounded transition">FORCE REFRESH</button>
+        
+        <!-- News Feed -->
+        <div class="mt-6">
+            <h3 class="text-sm font-bold text-slate-500 uppercase mb-4">Global Alpha Feed</h3>
+            <div id="newsContainer" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div>
         </div>
     </div>
 
-    <div class="mt-6 glass-panel rounded-xl p-5">
-        <h3 class="text-sm font-bold text-slate-500 uppercase mb-4 flex items-center gap-2">Transaction Log <span class="text-[10px] bg-slate-100 px-2 rounded">LIVE</span></h3>
-        <div class="overflow-x-auto max-h-60 overflow-y-auto">
-            <table class="w-full history-table text-left">
-                <thead>
-                    <tr class="text-slate-400 border-b border-slate-200">
-                        <th class="pb-2">Time</th>
-                        <th class="pb-2">Price</th>
-                        <th class="pb-2 text-right">Valuation</th>
-                        <th class="pb-2 text-right">Profit (Rp)</th> <th class="pb-2 text-right">ROI (%)</th>    </tr>
-                </thead>
-                <tbody id="historyTableBody"></tbody>
-            </table>
-            <div id="emptyHistoryMsg" class="text-center py-4 text-xs text-slate-400 font-mono">No data yet.</div>
+    <!-- Chart Analysis View -->
+    <div id="chartView" class="view-container hidden">
+        <div class="glass-panel rounded-xl p-4 mb-4">
+            <div class="flex flex-wrap items-center justify-between gap-4">
+                <div class="flex items-center gap-2">
+                    <span class="text-sm font-bold text-slate-700">Timeframe:</span>
+                    <button class="timeframe-btn" onclick="changeTimeframe('1', this)">1m</button>
+                    <button class="timeframe-btn" onclick="changeTimeframe('5', this)">5m</button>
+                    <button class="timeframe-btn active" onclick="changeTimeframe('15', this)">15m</button>
+                    <button class="timeframe-btn" onclick="changeTimeframe('60', this)">1h</button>
+                    <button class="timeframe-btn" onclick="changeTimeframe('240', this)">4h</button>
+                    <button class="timeframe-btn" onclick="changeTimeframe('D', this)">1D</button>
+                    <button class="timeframe-btn" onclick="changeTimeframe('W', this)">1W</button>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span id="currentSymbol" class="text-xs font-mono text-slate-500">BINANCE:USDTUSD</span>
+                    <button onclick="toggleFullscreen()" class="px-3 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded text-xs font-bold transition">
+                        ⛶ FULLSCREEN
+                    </button>
+                </div>
+            </div>
         </div>
-    </div>
-    
-    <div class="mt-6">
-        <h3 class="text-sm font-bold text-slate-500 uppercase mb-4">Global Alpha Feed</h3>
-        <div id="newsContainer" class="grid grid-cols-1 md:grid-cols-3 gap-4">
-             </div>
+        
+        <div class="glass-panel rounded-xl p-4">
+            <div id="tradingview_chart" class="main-chart-container"></div>
+        </div>
+        
+        <div class="mt-4 glass-panel rounded-xl p-4">
+            <div class="text-xs text-slate-500">
+                <p class="font-bold mb-2">📊 Chart Information:</p>
+                <ul class="list-disc list-inside space-y-1 text-[11px]">
+                    <li>Data berasal dari <strong>Binance</strong> melalui TradingView</li>
+                    <li>Harga dapat berbeda dengan Indodax karena perbedaan exchange</li>
+                    <li>Token EDEN dan MON menggunakan USDT sebagai reference (tidak tersedia di TradingView)</li>
+                    <li>Gunakan chart ini untuk analisis teknikal dan identifikasi trend</li>
+                </ul>
+            </div>
+        </div>
     </div>
 
   </main>
 
   <script>
-    // --- STABLE CONFIGURATION ---
+    // --- CONFIGURATION ---
     let CONFIG = { 
         HOLDINGS: 25071.97, 
         INITIAL_CAPITAL: 28970053, 
         PAIR_CODE: 'eden_idr',
-        // Safe refresh rate (3.5s) to avoid proxy bans
         REFRESH_RATE: 3500, 
         MAX_HISTORY: 50
     };
 
-    // ROTATING PROXY LIST (Anti-Blocking)
+    // SYMBOL MAPPING (Indodax -> TradingView)
+    const SYMBOL_MAP = {
+        'eden_idr': { tv: 'BINANCE:USDTUSD', name: 'USDT/USD', available: false, fallback: true },
+        'mon_idr': { tv: 'BINANCE:USDTUSD', name: 'USDT/USD', available: false, fallback: true },
+        'btc_idr': { tv: 'BINANCE:BTCUSDT', name: 'BTC/USDT', available: true },
+        'eth_idr': { tv: 'BINANCE:ETHUSDT', name: 'ETH/USDT', available: true },
+        'sol_idr': { tv: 'BINANCE:SOLUSDT', name: 'SOL/USDT', available: true },
+        'usdt_idr': { tv: 'BINANCE:USDTUSD', name: 'USDT/USD', available: true }
+    };
+
+    function getTradingViewSymbol(indodaxPair) {
+        const mapping = SYMBOL_MAP[indodaxPair];
+        if (!mapping.available) {
+            console.warn(`${indodaxPair} not available on TradingView, using fallback: ${mapping.tv}`);
+        }
+        return mapping;
+    }
+
+    // ROTATING PROXY LIST
     const PROXIES = [
-        'https://api.allorigins.win/raw?url=',     // Primary (Most Stable)
-        'https://corsproxy.io/?',                  // Secondary (Fast)
-        'https://api.codetabs.com/v1/proxy?quest=' // Backup
+        'https://api.allorigins.win/raw?url=',
+        'https://corsproxy.io/?',
+        'https://api.codetabs.com/v1/proxy?quest='
     ];
     let activeProxyIndex = 0;
     let failCount = 0;
@@ -196,7 +365,8 @@
         inputCapital: document.getElementById('inputCapital'),
         historyBody: document.getElementById('historyTableBody'),
         emptyHistoryMsg: document.getElementById('emptyHistoryMsg'),
-        newsContainer: document.getElementById('newsContainer')
+        newsContainer: document.getElementById('newsContainer'),
+        currentSymbol: document.getElementById('currentSymbol')
     };
 
     const fmt = { 
@@ -204,18 +374,209 @@
         num: (v) => Number(v).toLocaleString('id-ID') 
     };
 
-    // CHART INIT
-    let chart;
+    // CHART VARIABLES
+    let chart; // Chart.js for equity curve
+    let miniChart; // Lightweight Charts for mini chart
+    let miniCandlestickSeries;
+    let tvWidget; // TradingView widget
+    let currentTimeframe = '15';
+    let currentView = 'dashboard';
+
+    // --- CHART INITIALIZATION ---
+    
+    // Chart.js (Equity Curve)
     function initChart() {
         const ctx = document.getElementById('sparkline').getContext('2d');
         chart = new Chart(ctx, {
             type: 'line',
-            data: { labels: [], datasets: [{ data: [], borderColor: '#9333ea', borderWidth: 2, tension: 0.1, pointRadius: 0, fill: true, backgroundColor: 'rgba(147, 51, 234, 0.05)' }] },
-            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: false }, scales: { x: { display: false }, y: { display: false } } }
+            data: { 
+                labels: [], 
+                datasets: [{ 
+                    data: [], 
+                    borderColor: '#9333ea', 
+                    borderWidth: 2, 
+                    tension: 0.1, 
+                    pointRadius: 0, 
+                    fill: true, 
+                    backgroundColor: 'rgba(147, 51, 234, 0.05)' 
+                }] 
+            },
+            options: { 
+                responsive: true, 
+                maintainAspectRatio: false, 
+                plugins: { legend: false }, 
+                scales: { 
+                    x: { display: false }, 
+                    y: { display: false } 
+                } 
+            }
         });
     }
 
-    // DATA FETCHING ENGINE
+    // Lightweight Charts (Mini Chart)
+    function initMiniChart() {
+        try {
+            if (typeof LightweightCharts === 'undefined') {
+                console.warn('LightweightCharts library not loaded yet');
+                return;
+            }
+            
+            const container = document.getElementById('miniChartContainer');
+            if (!container) {
+                console.error('Mini chart container not found');
+                return;
+            }
+            
+            miniChart = LightweightCharts.createChart(container, {
+                width: container.clientWidth,
+                height: 200,
+                layout: {
+                    backgroundColor: 'transparent',
+                    textColor: '#64748b',
+                },
+                grid: {
+                    vertLines: { color: 'rgba(197, 203, 206, 0.2)' },
+                    horzLines: { color: 'rgba(197, 203, 206, 0.2)' },
+                },
+                timeScale: {
+                    timeVisible: true,
+                    secondsVisible: false,
+                },
+                rightPriceScale: {
+                    borderColor: 'rgba(197, 203, 206, 0.5)',
+                },
+            });
+
+            miniCandlestickSeries = miniChart.addCandlestickSeries({
+                upColor: '#10b981',
+                downColor: '#ef4444',
+                borderVisible: false,
+                wickUpColor: '#10b981',
+                wickDownColor: '#ef4444',
+            });
+
+            // Responsive resize
+            window.addEventListener('resize', () => {
+                if (miniChart) {
+                    miniChart.applyOptions({ width: container.clientWidth });
+                }
+            });
+        } catch (error) {
+            console.error('Error initializing mini chart:', error);
+        }
+    }
+
+    // TradingView Advanced Charts Widget
+    function initTradingViewWidget() {
+        if (tvWidget) return; // Already initialized
+
+        const symbolInfo = getTradingViewSymbol(CONFIG.PAIR_CODE);
+        
+        tvWidget = new TradingView.widget({
+            container_id: "tradingview_chart",
+            width: "100%",
+            height: 600,
+            symbol: symbolInfo.tv,
+            interval: currentTimeframe,
+            timezone: "Asia/Jakarta",
+            theme: "light",
+            style: "1",
+            locale: "id_ID",
+            toolbar_bg: "#f1f3f6",
+            enable_publishing: false,
+            hide_side_toolbar: false,
+            allow_symbol_change: true,
+            studies: [
+                "RSI@tv-basicstudies",
+                "MASimple@tv-basicstudies"
+            ],
+            disabled_features: ["use_localstorage_for_settings"],
+            enabled_features: ["study_templates"],
+            overrides: {
+                "mainSeriesProperties.candleStyle.upColor": "#10b981",
+                "mainSeriesProperties.candleStyle.downColor": "#ef4444",
+                "mainSeriesProperties.candleStyle.borderUpColor": "#10b981",
+                "mainSeriesProperties.candleStyle.borderDownColor": "#ef4444",
+                "mainSeriesProperties.candleStyle.wickUpColor": "#10b981",
+                "mainSeriesProperties.candleStyle.wickDownColor": "#ef4444"
+            }
+        });
+
+        ui.currentSymbol.textContent = symbolInfo.tv;
+    }
+
+    // --- VIEW SWITCHING ---
+    function switchView(view) {
+        currentView = view;
+        
+        const dashboardView = document.getElementById('dashboardView');
+        const chartView = document.getElementById('chartView');
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        
+        tabBtns.forEach(btn => btn.classList.remove('active'));
+        
+        if (view === 'dashboard') {
+            dashboardView.classList.remove('hidden');
+            chartView.classList.add('hidden');
+            tabBtns[0].classList.add('active');
+        } else {
+            dashboardView.classList.add('hidden');
+            chartView.classList.remove('hidden');
+            tabBtns[1].classList.add('active');
+            
+            // Lazy load TradingView widget
+            if (!tvWidget) {
+                initTradingViewWidget();
+            }
+        }
+    }
+
+    // --- TIMEFRAME CONTROL ---
+    function changeTimeframe(interval, buttonElement) {
+        currentTimeframe = interval;
+        
+        // Update active button
+        document.querySelectorAll('.timeframe-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        
+        // Find and activate the clicked button
+        if (buttonElement) {
+            buttonElement.classList.add('active');
+        } else {
+            // Fallback: find button by interval value
+            document.querySelectorAll('.timeframe-btn').forEach(btn => {
+                if (btn.textContent.includes(interval === 'D' ? '1D' : interval === 'W' ? '1W' : interval + 'm') ||
+                    btn.textContent.includes(interval === '60' ? '1h' : interval === '240' ? '4h' : '')) {
+                    btn.classList.add('active');
+                }
+            });
+        }
+        
+        // Update TradingView widget
+        if (tvWidget && tvWidget.chart) {
+            try {
+                tvWidget.chart().setResolution(interval);
+            } catch (error) {
+                console.error('Error changing timeframe:', error);
+            }
+        }
+    }
+
+    // --- FULLSCREEN TOGGLE ---
+    function toggleFullscreen() {
+        const chartContainer = document.getElementById('tradingview_chart');
+        
+        if (!document.fullscreenElement) {
+            chartContainer.requestFullscreen().catch(err => {
+                console.error('Fullscreen error:', err);
+            });
+        } else {
+            document.exitFullscreen();
+        }
+    }
+
+    // --- DATA FETCHING ---
     async function fetchMarketData() {
         ui.loading.classList.remove('hidden');
         ui.loadingText.textContent = `SYNCING (NODE ${activeProxyIndex + 1})...`;
@@ -226,7 +587,7 @@
 
         try {
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 5000); // 5s timeout
+            const timeoutId = setTimeout(() => controller.abort(), 5000);
             
             const res = await fetch(finalUrl, { signal: controller.signal });
             clearTimeout(timeoutId);
@@ -237,7 +598,6 @@
             
             if (!data.ticker || !data.ticker.last) throw new Error("Invalid Pair");
 
-            // SUCCESS
             failCount = 0;
             updateDashboard(parseFloat(data.ticker.last));
             
@@ -250,7 +610,6 @@
             failCount++;
             ui.status.innerHTML = `<span class="text-rose-500">● RETRYING...</span>`;
             
-            // Auto-Switch Proxy if failed
             if(failCount > 1) {
                 activeProxyIndex = (activeProxyIndex + 1) % PROXIES.length;
                 failCount = 0;
@@ -277,7 +636,7 @@
         
         ui.advice.innerHTML = `> Market Update Received.<br>> Price: ${price}<br>> Delta: ${roi.toFixed(2)}%`;
 
-        // Update Chart
+        // Update Equity Curve Chart
         const now = new Date().toLocaleTimeString();
         if (chart.data.datasets[0].data.length > 50) {
             chart.data.labels.shift();
@@ -289,7 +648,10 @@
         chart.data.datasets[0].backgroundColor = isProfit ? 'rgba(16, 185, 129, 0.1)' : 'rgba(244, 63, 94, 0.1)';
         chart.update();
 
-        // Update Log (MODIFIED TO SHOW PROFIT AMOUNT)
+        // Update Mini Chart (Lightweight Charts)
+        updateMiniChart(price);
+
+        // Update Transaction Log
         const row = document.createElement('tr');
         row.innerHTML = `
             <td class="text-slate-500">${now}</td>
@@ -303,6 +665,31 @@
         ui.emptyHistoryMsg.classList.add('hidden');
     }
 
+    // Update Mini Chart with simple line data
+    let miniChartData = [];
+    function updateMiniChart(price) {
+        const timestamp = Math.floor(Date.now() / 1000);
+        
+        // Add new data point
+        miniChartData.push({
+            time: timestamp,
+            open: price,
+            high: price * 1.001,
+            low: price * 0.999,
+            close: price
+        });
+        
+        // Keep only last 50 data points
+        if (miniChartData.length > 50) {
+            miniChartData.shift();
+        }
+        
+        // Update chart
+        if (miniCandlestickSeries) {
+            miniCandlestickSeries.setData(miniChartData);
+        }
+    }
+
     // NEWS FETCHER
     async function fetchNews() {
         try {
@@ -314,7 +701,9 @@
                     <span class="text-[10px] text-slate-400 mt-1 block">Cointelegraph • Alpha</span>
                 </a>
             `).join('');
-        } catch(e) {}
+        } catch(e) {
+            console.error('News fetch error:', e);
+        }
     }
 
     // EVENT LISTENERS
@@ -326,20 +715,50 @@
         ui.assetName.textContent = ui.inputCoin.options[ui.inputCoin.selectedIndex].text.split(' - ')[0];
         ui.holdings.textContent = fmt.num(CONFIG.HOLDINGS);
         
-        chart.data.labels = []; chart.data.datasets[0].data = []; chart.update();
-        ui.historyBody.innerHTML = ''; activeProxyIndex = 0;
+        // Reset charts
+        chart.data.labels = [];
+        chart.data.datasets[0].data = [];
+        chart.update();
+        ui.historyBody.innerHTML = '';
+        activeProxyIndex = 0;
+        miniChartData = [];
+        
+        // Update TradingView symbol if widget is loaded
+        if (tvWidget) {
+            const symbolInfo = getTradingViewSymbol(CONFIG.PAIR_CODE);
+            tvWidget.setSymbol(symbolInfo.tv, currentTimeframe);
+            ui.currentSymbol.textContent = symbolInfo.tv;
+        }
         
         fetchMarketData();
     });
 
     document.getElementById('refreshBtn').addEventListener('click', fetchMarketData);
 
-    // INIT
-    initChart();
-    ui.holdings.textContent = fmt.num(CONFIG.HOLDINGS);
-    fetchMarketData();
-    fetchNews();
-    setInterval(fetchMarketData, CONFIG.REFRESH_RATE);
+    // Sync coin selector with charts
+    ui.inputCoin.addEventListener('change', () => {
+        const symbolInfo = getTradingViewSymbol(ui.inputCoin.value);
+        ui.currentSymbol.textContent = symbolInfo.tv;
+        
+        if (tvWidget && currentView === 'chart') {
+            tvWidget.setSymbol(symbolInfo.tv, currentTimeframe);
+        }
+    });
+
+    // INITIALIZATION
+    document.addEventListener('DOMContentLoaded', () => {
+        initChart();
+        
+        // Delay mini chart initialization to ensure library is loaded
+        setTimeout(() => {
+            initMiniChart();
+        }, 500);
+        
+        ui.holdings.textContent = fmt.num(CONFIG.HOLDINGS);
+        fetchMarketData();
+        fetchNews();
+        setInterval(fetchMarketData, CONFIG.REFRESH_RATE);
+    });
 
   </script>
 </body>
