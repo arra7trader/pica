@@ -52,13 +52,19 @@ module.exports = (req, res) => {
             try {
                 const json = JSON.parse(data);
 
-                // Fetch prices for validatio/estimation
+                // Check for Indodax API error
+                if (json.success === 0) {
+                    return res.status(200).json({ success: false, error: 'Indodax: ' + (json.error || 'Unknown error') });
+                }
+
+                // Fetch prices for validation/estimation
                 https.get('https://indodax.com/api/summaries', (priceRes) => {
                     let priceData = '';
                     priceRes.on('data', c => priceData += c);
                     priceRes.on('end', () => {
                         try {
-                            const prices = JSON.parse(priceData).tickers;
+                            const priceJson = JSON.parse(priceData);
+                            const prices = priceJson.tickers || {};
                             res.status(200).json({ success: true, data: json.return, prices: prices });
                         } catch (e) {
                             // Return portfolio even if prices fail
@@ -68,7 +74,7 @@ module.exports = (req, res) => {
                 });
 
             } catch (e) {
-                res.status(500).json({ error: 'Failed to parse Indodax response' });
+                res.status(500).json({ error: 'Failed to parse Indodax response: ' + data.substring(0, 100) });
             }
         });
     });
