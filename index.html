@@ -1,0 +1,1886 @@
+<!doctype html>
+<html lang="id" class="scroll-smooth">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>PICA Terminal - Loading...</title>
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="description" content="PICA Protocol - Professional Crypto Trading Terminal">
+
+  <link rel="icon" href="./image_0.png" type="image/png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+    rel="stylesheet">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://s3.tradingview.com/tv.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace']
+          },
+          colors: {
+            'terminal': {
+              'bg': '#0a0a0f',
+              'card': '#12121a',
+              'border': '#1f1f2e',
+              'accent': '#00ff88',
+              'purple': '#a855f7',
+              'cyan': '#22d3ee',
+              'gold': '#fbbf24'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    :root {
+      /* Premium Color Palette */
+      --bg-dark: #050507;
+      --bg-card: rgba(20, 20, 30, 0.4);
+      --bg-card-hover: rgba(30, 30, 45, 0.6);
+
+      --accent-primary: #00ffa3;
+      --accent-secondary: #00c2ff;
+      --accent-purple: #bd00ff;
+      --accent-gold: #ffd700;
+      --accent-danger: #ff0055;
+
+      --text-main: #ffffff;
+      --text-muted: #94a3b8;
+
+      --border-light: rgba(255, 255, 255, 0.08);
+      --border-glow: rgba(0, 255, 163, 0.5);
+
+      --glass-blur: blur(12px);
+      --glow-spread: 20px;
+    }
+
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: var(--accent-primary) transparent;
+    }
+
+    /* Custom Premium Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: linear-gradient(to bottom, var(--accent-primary), var(--accent-secondary));
+      border-radius: 3px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--accent-primary);
+    }
+
+    body {
+      background: var(--bg-dark);
+      color: var(--text-main);
+      overflow-x: hidden;
+      min-height: 100vh;
+      font-family: 'Inter', sans-serif;
+    }
+
+    ::selection {
+      background: rgba(0, 255, 163, 0.2);
+      color: var(--accent-primary);
+    }
+
+    /* Advanced Animated Background */
+    .terminal-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: -1;
+      background: var(--bg-dark);
+      overflow: hidden;
+    }
+
+    .terminal-bg::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background:
+        radial-gradient(circle at 50% 50%, rgba(0, 255, 163, 0.03) 0%, transparent 60%),
+        radial-gradient(circle at 10% 10%, rgba(189, 0, 255, 0.04) 0%, transparent 50%),
+        radial-gradient(circle at 90% 90%, rgba(0, 194, 255, 0.04) 0%, transparent 50%);
+      animation: rotate-bg 60s linear infinite;
+    }
+
+    .terminal-bg::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+      background-size: 50px 50px;
+      mask-image: radial-gradient(circle at center, black 40%, transparent 100%);
+      pointer-events: none;
+    }
+
+    @keyframes rotate-bg {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* Glassmorphism Card System */
+    .terminal-card {
+      background: var(--bg-card);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      border: 1px solid var(--border-light);
+      border-radius: 16px;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    .terminal-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transform: translateX(-100%);
+      transition: transform 0.6s ease;
+    }
+
+    .terminal-card:hover {
+      border-color: rgba(0, 255, 163, 0.3);
+      box-shadow: 0 0 20px rgba(0, 255, 163, 0.1), inset 0 0 20px rgba(0, 255, 163, 0.02);
+      transform: translateY(-2px);
+    }
+
+    .terminal-card:hover::before {
+      transform: translateX(100%);
+    }
+
+    .terminal-card-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border-light);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(255, 255, 255, 0.01);
+    }
+
+    .terminal-card-body {
+      padding: 24px;
+    }
+
+    /* Typography Upgrades */
+    .font-mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .text-glow-green {
+      text-shadow: 0 0 10px rgba(0, 255, 163, 0.6);
+    }
+
+    .text-glow-blue {
+      text-shadow: 0 0 10px rgba(0, 194, 255, 0.6);
+    }
+
+    .text-glow-purple {
+      text-shadow: 0 0 10px rgba(189, 0, 255, 0.6);
+    }
+
+    .text-glow-red {
+      text-shadow: 0 0 10px rgba(255, 0, 85, 0.6);
+    }
+
+    .price-main {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 3.5rem;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      line-height: 1;
+      background: linear-gradient(to right, #fff, #a5b4fc);
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 0 15px rgba(0, 255, 163, 0.3));
+    }
+
+    @media (max-width: 640px) {
+      .price-main {
+        font-size: 2.25rem;
+      }
+    }
+
+    /* Advanced Status Badge */
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      border-radius: 9999px;
+      font-size: 11px;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .status-live {
+      background: rgba(0, 255, 163, 0.08);
+      border: 1px solid rgba(0, 255, 163, 0.2);
+      color: var(--accent-primary);
+      box-shadow: 0 0 10px rgba(0, 255, 163, 0.1);
+    }
+
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      background: var(--accent-primary);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--accent-primary);
+      animation: pulse-dot 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+
+    @keyframes pulse-dot {
+
+      0%,
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      50% {
+        opacity: 0.5;
+        transform: scale(0.8);
+      }
+    }
+
+    /* Modern Tab System */
+    .tab-container {
+      display: flex;
+      gap: 6px;
+      padding: 6px;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--border-light);
+      border-radius: 12px;
+      backdrop-filter: blur(8px);
+    }
+
+    .tab-btn {
+      padding: 10px 24px;
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      background: transparent;
+      color: var(--text-muted);
+      border: none;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .tab-btn:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .tab-btn.active {
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Enhanced Inputs */
+    .config-input {
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid var(--border-light);
+      border-radius: 10px;
+      padding: 12px 16px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      width: 100%;
+      color: #fff;
+      transition: all 0.3s ease;
+    }
+
+    .config-input:focus {
+      outline: none;
+      border-color: var(--accent-primary);
+      box-shadow: 0 0 0 3px rgba(0, 255, 163, 0.1);
+      background: rgba(0, 0, 0, 0.6);
+    }
+
+    .config-input option {
+      background: #0f0f16;
+      color: #fff;
+    }
+
+    /* Stat Box Premium */
+    .stat-box {
+      background: linear-gradient(145deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.01) 100%);
+      border: 1px solid var(--border-light);
+      border-radius: 12px;
+      padding: 16px;
+      transition: all 0.3s ease;
+    }
+
+    .stat-box:hover {
+      border-color: rgba(255, 255, 255, 0.15);
+      background: rgba(255, 255, 255, 0.04);
+      transform: translateY(-1px);
+    }
+
+    .stat-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 6px;
+    }
+
+    .stat-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 20px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    /* Buttons */
+    .btn-terminal {
+      background: linear-gradient(135deg, var(--accent-primary) 0%, #00cc88 100%);
+      color: #000;
+      font-weight: 800;
+      padding: 12px 24px;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(0, 255, 163, 0.2);
+    }
+
+    .btn-terminal:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 25px rgba(0, 255, 163, 0.4);
+      filter: brightness(110%);
+    }
+
+    /* Data Table */
+    .data-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+    }
+
+    .data-table th {
+      padding: 12px 16px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      text-align: left;
+      border-bottom: 1px solid var(--border-light);
+      background: rgba(255, 255, 255, 0.01);
+    }
+
+    .data-table td {
+      padding: 16px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      border-bottom: 1px solid var(--border-light);
+      color: #fff;
+      transition: background 0.2s ease;
+    }
+
+    .data-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .data-table tr:hover td {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    /* Chart Container */
+    .chart-container {
+      height: 700px;
+      border-radius: 12px;
+      overflow: hidden;
+      background: rgba(0, 0, 0, 0.2);
+      border: 1px solid var(--border-light);
+    }
+
+    @media (max-width: 768px) {
+      .chart-container {
+        height: 450px;
+      }
+    }
+
+    /* Timeframe Buttons */
+    .tf-btn {
+      padding: 8px 16px;
+      font-size: 11px;
+      font-weight: 600;
+      font-family: 'JetBrains Mono', monospace;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .tf-btn:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .tf-btn.active {
+      background: rgba(0, 255, 163, 0.1);
+      border-color: rgba(0, 255, 163, 0.3);
+      color: var(--accent-primary);
+      box-shadow: 0 0 10px rgba(0, 255, 163, 0.1);
+    }
+
+    /* Performance Meter */
+    .perf-meter {
+      height: 6px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 3px;
+      overflow: hidden;
+      margin-top: 10px;
+      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2);
+    }
+
+    .perf-bar {
+      height: 100%;
+      border-radius: 3px;
+      transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 0 8px currentColor;
+    }
+
+    /* Ticker Tape */
+    .ticker-tape {
+      background: rgba(0, 0, 0, 0.3);
+      border-top: 1px solid var(--border-light);
+      border-bottom: 1px solid var(--border-light);
+      backdrop-filter: blur(5px);
+      overflow: hidden;
+      white-space: nowrap;
+      height: 48px;
+      display: flex;
+      align-items: center;
+    }
+
+    .ticker-content {
+      display: inline-flex;
+      animation: ticker 40s linear infinite;
+    }
+
+    @keyframes ticker {
+      0% {
+        transform: translateX(0);
+      }
+
+      100% {
+        transform: translateX(-50%);
+      }
+    }
+
+    .ticker-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0 32px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+    }
+
+    /* Animations */
+    @keyframes fadeInScale {
+      from {
+        opacity: 0;
+        transform: scale(0.95);
+      }
+
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    .animate-in {
+      animation: fadeInScale 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      opacity: 0;
+    }
+
+    .delay-1 {
+      animation-delay: 0.1s;
+    }
+
+    .delay-2 {
+      animation-delay: 0.2s;
+    }
+
+    .delay-3 {
+      animation-delay: 0.3s;
+    }
+
+    /* Mobile Nav */
+    .mobile-nav {
+      position: fixed;
+      top: 0;
+      right: -100%;
+      width: 300px;
+      height: 100vh;
+      background: var(--bg-dark);
+      border-left: 1px solid var(--border-light);
+      z-index: 100;
+      padding: 80px 24px 24px;
+      transition: right 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+      backdrop-filter: blur(20px);
+    }
+
+    .mobile-nav.active {
+      right: 0;
+    }
+
+    .mobile-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(4px);
+      z-index: 90;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .mobile-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .mobile-menu-btn span {
+      background: #fff;
+    }
+
+    @media (max-width: 768px) {
+      .desktop-only {
+        display: none !important;
+      }
+
+      .mobile-only {
+        display: block;
+      }
+    }
+
+    @media (min-width: 769px) {
+      .mobile-only {
+        display: none !important;
+      }
+    }
+
+    .view-container {
+      display: block;
+    }
+
+    .view-container.hidden {
+      display: none;
+    }
+  </style>
+</head>
+
+<body class="antialiased">
+
+  <!-- Terminal Background -->
+  <div class="terminal-bg"></div>
+
+  <!-- Mobile Overlay -->
+  <div class="mobile-overlay" id="mobileOverlay" onclick="toggleMobile()"></div>
+
+  <!-- Mobile Nav -->
+  <nav class="mobile-nav" id="mobileNav">
+    <div class="space-y-4">
+      <button class="tab-btn w-full text-left" onclick="switchView('dashboard'); toggleMobile();">
+        <span class="mr-2">◉</span> Dashboard
+      </button>
+      <button class="tab-btn w-full text-left" onclick="switchView('portfolio'); toggleMobile();">
+        <span class="mr-2">◉</span> Portfolio
+      </button>
+      <button class="tab-btn w-full text-left" onclick="switchView('chart'); toggleMobile();">
+        <span class="mr-2">◉</span> Chart Terminal
+      </button>
+      <hr class="border-[var(--border)] my-4">
+      <div class="stat-box">
+        <div class="stat-label">Quick ROI</div>
+        <div id="mobileRoi" class="stat-value text-[var(--accent)]">--</div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Header -->
+  <header class="sticky top-0 z-50 bg-[var(--bg)]/95 backdrop-blur-sm border-b border-[var(--border)]">
+    <div class="max-w-[1600px] mx-auto px-4 py-3">
+      <div class="flex justify-between items-center">
+        <!-- Logo -->
+        <div class="flex items-center gap-3">
+          <div
+            class="w-9 h-9 rounded-lg bg-gradient-to-br from-[var(--accent)] to-[var(--purple)] flex items-center justify-center">
+            <span class="text-black font-bold text-sm">P</span>
+          </div>
+          <div>
+            <div class="font-bold text-sm tracking-wide">PICA TERMINAL</div>
+            <div class="text-[10px] text-[#64748b] font-mono">v2.0 • Professional</div>
+          </div>
+        </div>
+
+        <!-- Desktop Tabs -->
+        <div class="tab-container desktop-only">
+          <button class="tab-btn active" onclick="switchView('dashboard')">◉ Dashboard</button>
+          <button class="tab-btn" onclick="switchView('portfolio')">◉ Portfolio</button>
+          <button class="tab-btn" onclick="switchView('chart')">◉ Chart Terminal</button>
+        </div>
+
+        <!-- Status -->
+        <div class="flex items-center gap-3">
+          <div id="connectionStatus" class="status-badge status-live desktop-only">
+            <span class="status-dot"></span>
+            LIVE
+          </div>
+          <button class="mobile-menu-btn mobile-only" onclick="toggleMobile()">
+            <span></span><span></span><span></span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Ticker Tape -->
+  <div class="ticker-tape">
+    <div class="ticker-content">
+      <div class="ticker-item"><span class="text-white font-bold">BTC</span> <span
+          class="text-[var(--accent)]">$98,450</span></div>
+      <div class="ticker-item"><span class="text-white font-bold">ETH</span> <span
+          class="text-[var(--accent)]">$3,485</span></div>
+      <div class="ticker-item"><span class="text-white font-bold">SOL</span> <span
+          class="text-[var(--accent)]">$186.50</span></div>
+      <div class="ticker-item"><span class="text-white font-bold">EDEN</span> <span
+          class="text-[var(--red)]">$1.15</span></div>
+      <div class="ticker-item"><span class="text-white font-bold">MON</span> <span
+          class="text-[var(--accent)]">$0.89</span></div>
+      <div class="ticker-item"><span class="text-[#64748b]">•</span></div>
+      <div class="ticker-item"><span class="text-white font-bold">BTC</span> <span
+          class="text-[var(--accent)]">$98,450</span></div>
+      <div class="ticker-item"><span class="text-white font-bold">ETH</span> <span
+          class="text-[var(--accent)]">$3,485</span></div>
+      <div class="ticker-item"><span class="text-white font-bold">SOL</span> <span
+          class="text-[var(--accent)]">$186.50</span></div>
+      <div class="ticker-item"><span class="text-white font-bold">EDEN</span> <span
+          class="text-[var(--red)]">$1.15</span></div>
+      <div class="ticker-item"><span class="text-white font-bold">MON</span> <span
+          class="text-[var(--accent)]">$0.89</span></div>
+    </div>
+  </div>
+
+  <main class="max-w-[1600px] mx-auto p-4 min-h-screen">
+
+    <!-- Dashboard View -->
+    <div id="dashboardView" class="view-container">
+
+      <!-- Config Bar -->
+      <div class="terminal-card mb-4">
+        <div class="p-4">
+          <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 items-end">
+            <div>
+              <label class="stat-label block mb-2">Asset Pair</label>
+              <select id="coinSelector" class="config-input">
+                <option value="eden_idr" selected>EDEN/IDR</option>
+                <option value="mon_idr">MON/IDR</option>
+                <option value="btc_idr">BTC/IDR</option>
+                <option value="eth_idr">ETH/IDR</option>
+                <option value="sol_idr">SOL/IDR</option>
+                <option value="usdt_idr">USDT/IDR</option>
+              </select>
+            </div>
+            <div>
+              <label class="stat-label block mb-2">Holdings</label>
+              <input type="number" id="inputHoldings" class="config-input" placeholder="0" step="0.00000001">
+            </div>
+            <div>
+              <label class="stat-label block mb-2">Initial Capital (Rp)</label>
+              <input type="number" id="inputCapital" class="config-input" placeholder="0" step="1">
+            </div>
+            <div>
+              <label class="stat-label block mb-2">Node Status</label>
+              <div id="proxyStatus" class="config-input text-[var(--accent)] text-xs">
+                Active • Node 1
+              </div>
+            </div>
+            <div>
+              <button id="syncBtn"
+                class="w-full h-9 px-4 rounded-lg font-semibold text-xs transition-all duration-200 bg-gradient-to-r from-[var(--accent)] to-[#8b5cf6] text-white hover:opacity-90">
+                ⚡ Sync
+              </button>
+            </div>
+          </div>
+          <p class="text-[10px] text-[#64748b] mt-2">💡 Tip: Gunakan Quick Sync dari Portfolio untuk auto-fill Holdings
+          </p>
+        </div>
+      </div>
+
+      <!-- Main Grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+
+        <!-- Price Panel -->
+        <div class="lg:col-span-4 terminal-card animate-in delay-1">
+          <div class="terminal-card-header">
+            <div class="flex items-center gap-2">
+              <div
+                class="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-xs font-bold">
+                E
+              </div>
+              <div>
+                <div id="assetName" class="font-bold">EDEN</div>
+                <div class="text-[10px] text-[#64748b]">OpenEden Treasury</div>
+              </div>
+            </div>
+            <div class="status-badge status-live">
+              <span class="status-dot"></span>
+              LIVE
+            </div>
+          </div>
+          <div class="terminal-card-body">
+            <div id="loadingBox" class="hidden text-xs text-[#64748b] font-mono mb-2">
+              <span class="animate-spin inline-block">↻</span> <span id="loadingText">SYNCING...</span>
+            </div>
+            <div id="price" class="price-main text-white">--</div>
+            <div id="price-change" class="text-sm mt-2 text-[#64748b]">Waiting for stream...</div>
+
+            <!-- Quick Stats -->
+            <div class="grid grid-cols-2 gap-3 mt-6">
+              <div class="stat-box">
+                <div class="stat-label">Holdings</div>
+                <div id="holdings" class="stat-value text-white">--</div>
+              </div>
+              <div class="stat-box">
+                <div class="stat-label">Value</div>
+                <div id="currentValue" class="stat-value text-white">--</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Performance Panel -->
+        <div class="lg:col-span-5 terminal-card animate-in delay-2">
+          <div class="terminal-card-header">
+            <span class="text-xs font-bold text-[#64748b] uppercase tracking-wider">Performance</span>
+            <span id="lastUpdated" class="text-[10px] font-mono text-[#64748b]">--:--:--</span>
+          </div>
+          <div class="terminal-card-body">
+            <div class="grid grid-cols-2 gap-4 mb-4">
+              <div>
+                <div class="stat-label">Profit/Loss</div>
+                <div id="pnlRp" class="stat-value text-[var(--accent)]">--</div>
+                <div class="perf-meter">
+                  <div id="pnlBar" class="perf-bar bg-[var(--accent)]" style="width: 50%"></div>
+                </div>
+              </div>
+              <div>
+                <div class="stat-label">Return %</div>
+                <div id="pnlPct" class="stat-value text-[var(--accent)]">--</div>
+                <div class="perf-meter">
+                  <div id="roiBar" class="perf-bar bg-[var(--purple)]" style="width: 50%"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Equity Chart -->
+            <div class="equity-chart-container">
+              <canvas id="sparkline"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- System Panel -->
+        <div class="lg:col-span-3 terminal-card animate-in delay-3">
+          <div class="terminal-card-header">
+            <span class="text-xs font-bold text-[#64748b] uppercase tracking-wider">System</span>
+          </div>
+          <div class="terminal-card-body space-y-3">
+            <div id="advice"
+              class="text-xs font-mono p-3 bg-black/30 rounded-lg border border-[var(--border)] text-[var(--accent)] leading-relaxed">
+              &gt; System initialized<br>
+              &gt; Awaiting data stream...
+            </div>
+
+            <div class="stat-box">
+              <div class="stat-label">Session</div>
+              <div id="sessionTime" class="stat-value text-white text-sm">00:00:00</div>
+            </div>
+
+            <div class="stat-box">
+              <div class="stat-label">Total Ticks</div>
+              <div id="tickCount" class="stat-value text-[var(--cyan)]">0</div>
+            </div>
+
+            <button id="refreshBtn" class="btn-secondary w-full text-xs mt-2">
+              ↻ Force Refresh
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Transaction Log -->
+      <div class="terminal-card mt-4 animate-in delay-3">
+        <div class="terminal-card-header">
+          <span class="text-xs font-bold text-[#64748b] uppercase tracking-wider">Transaction Feed</span>
+          <div class="status-badge status-live">
+            <span class="status-dot"></span>
+            STREAMING
+          </div>
+        </div>
+        <div class="overflow-x-auto max-h-64 overflow-y-auto">
+          <table class="data-table">
+            <thead class="sticky top-0">
+              <tr>
+                <th>Time</th>
+                <th>Price</th>
+                <th class="text-right">Value</th>
+                <th class="text-right">P/L</th>
+                <th class="text-right">ROI</th>
+              </tr>
+            </thead>
+            <tbody id="historyTableBody"></tbody>
+          </table>
+          <div id="emptyHistoryMsg" class="text-center py-8 text-sm text-[#64748b] font-mono">
+            <div class="text-2xl mb-2">◎</div>
+            Waiting for transactions...
+          </div>
+        </div>
+      </div>
+
+      <!-- News Section -->
+      <div class="mt-4">
+        <div class="flex items-center gap-2 mb-3">
+          <span class="text-xs font-bold text-[#64748b] uppercase tracking-wider">Market Intel</span>
+        </div>
+        <div id="newsContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          <div class="news-card">
+            <div class="skeleton h-4 w-3/4 mb-2"></div>
+            <div class="skeleton h-3 w-1/2"></div>
+          </div>
+          <div class="news-card">
+            <div class="skeleton h-4 w-3/4 mb-2"></div>
+            <div class="skeleton h-3 w-1/2"></div>
+          </div>
+          <div class="news-card desktop-only">
+            <div class="skeleton h-4 w-3/4 mb-2"></div>
+            <div class="skeleton h-3 w-1/2"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chart Terminal View -->
+    <div id="chartView" class="view-container hidden">
+
+      <!-- Chart Header -->
+      <div class="terminal-card mb-4">
+        <div class="p-4">
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center gap-4">
+              <div class="flex items-center gap-2">
+                <div
+                  class="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-xs font-bold">
+                  E
+                </div>
+                <div>
+                  <div id="chartSymbol" class="font-bold text-sm">EDEN/USDT</div>
+                  <div class="text-[10px] text-[#64748b]">Binance Perpetual</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-2">
+              <button class="tf-btn" onclick="changeTimeframe('1', this)">1m</button>
+              <button class="tf-btn" onclick="changeTimeframe('5', this)">5m</button>
+              <button class="tf-btn active" onclick="changeTimeframe('15', this)">15m</button>
+              <button class="tf-btn" onclick="changeTimeframe('60', this)">1H</button>
+              <button class="tf-btn" onclick="changeTimeframe('240', this)">4H</button>
+              <button class="tf-btn" onclick="changeTimeframe('D', this)">1D</button>
+            </div>
+
+            <button onclick="toggleFullscreen()" class="btn-secondary text-xs">
+              ⛶ Fullscreen
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- TradingView Chart -->
+      <div class="terminal-card">
+        <div id="tradingview_chart" class="chart-container"></div>
+      </div>
+
+      <!-- Chart Info -->
+      <div class="terminal-card mt-4">
+        <div class="p-4">
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-xs">
+            <div class="stat-box">
+              <div class="stat-label">Exchange</div>
+              <div class="font-bold text-white">Binance</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-label">Pair Type</div>
+              <div class="font-bold text-white">Perpetual</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-label">Data Feed</div>
+              <div class="font-bold text-[var(--accent)]">Real-time</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-label">Chart Provider</div>
+              <div class="font-bold text-white">TradingView</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Portfolio View -->
+    <div id="portfolioView" class="view-container hidden">
+
+      <!-- API Settings Card -->
+      <div class="terminal-card mb-4">
+        <div class="terminal-card-header">
+          <span class="text-xs font-bold text-[#64748b] uppercase tracking-wider">🔐 Indodax API Configuration</span>
+          <div id="apiStatus" class="status-badge"
+            style="background: rgba(100,116,139,0.2); border-color: rgba(100,116,139,0.3); color: #64748b;">
+            NOT CONNECTED
+          </div>
+        </div>
+        <div class="terminal-card-body">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+            <div>
+              <label class="stat-label block mb-2">API Key</label>
+              <input type="password" id="apiKeyInput" class="config-input" placeholder="Masukkan API Key...">
+            </div>
+            <div>
+              <label class="stat-label block mb-2">Secret Key</label>
+              <input type="password" id="secretKeyInput" class="config-input" placeholder="Masukkan Secret Key...">
+            </div>
+            <div>
+              <button onclick="connectIndodax()" class="btn-terminal w-full">
+                🔗 Connect & Sync
+              </button>
+            </div>
+          </div>
+          <p class="text-[10px] text-[#64748b] mt-3">⚠️ API keys disimpan di browser localStorage (lokal saja). Jangan
+            gunakan di komputer publik.</p>
+        </div>
+      </div>
+
+      <!-- Portfolio Summary -->
+      <div class="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-4">
+        <div class="terminal-card">
+          <div class="terminal-card-body text-center">
+            <div class="stat-label">Total Portfolio Value</div>
+            <div id="totalPortfolioValue" class="text-2xl font-bold text-[var(--accent)] font-mono mt-2">--</div>
+          </div>
+        </div>
+        <div class="terminal-card">
+          <div class="terminal-card-body text-center">
+            <div class="stat-label">IDR Balance</div>
+            <div id="idrBalance" class="text-xl font-bold text-white font-mono mt-2">--</div>
+          </div>
+        </div>
+        <div class="terminal-card">
+          <div class="terminal-card-body text-center">
+            <div class="stat-label">Total Assets</div>
+            <div id="totalAssets" class="text-xl font-bold text-[var(--cyan)] font-mono mt-2">--</div>
+          </div>
+        </div>
+        <div class="terminal-card">
+          <div class="terminal-card-body text-center">
+            <div class="stat-label">Last Sync</div>
+            <div id="lastSync" class="text-sm font-bold text-[#64748b] font-mono mt-2">Never</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Holdings Table -->
+      <div class="terminal-card">
+        <div class="terminal-card-header">
+          <span class="text-xs font-bold text-[#64748b] uppercase tracking-wider">Portfolio Holdings</span>
+          <button onclick="syncPortfolio()" class="btn-secondary text-xs">
+            ↻ Refresh
+          </button>
+        </div>
+        <div class="overflow-x-auto max-h-96 overflow-y-auto">
+          <table class="data-table">
+            <thead class="sticky top-0">
+              <tr>
+                <th>Asset</th>
+                <th class="text-right">Balance</th>
+                <th class="text-right">Frozen</th>
+                <th class="text-right">Est. Value (IDR)</th>
+              </tr>
+            </thead>
+            <tbody id="portfolioTableBody"></tbody>
+          </table>
+          <div id="emptyPortfolioMsg" class="text-center py-12 text-sm text-[#64748b] font-mono">
+            <div class="text-3xl mb-3">🔒</div>
+            <p>Connect your Indodax API to view portfolio</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="terminal-card">
+          <div class="terminal-card-body">
+            <h4 class="text-sm font-bold text-white mb-3">📊 Cara Mendapatkan API Key</h4>
+            <ol class="text-xs text-[#94a3b8] space-y-2 list-decimal list-inside">
+              <li>Login ke <a href="https://indodax.com" target="_blank"
+                  class="text-[var(--accent)] hover:underline">indodax.com</a></li>
+              <li>Buka Settings → API Key</li>
+              <li>Klik "Create New API Key"</li>
+              <li>Centang "Read Info" saja</li>
+              <li>Masukkan 2FA dan simpan keys</li>
+            </ol>
+          </div>
+        </div>
+        <div class="terminal-card">
+          <div class="terminal-card-body">
+            <h4 class="text-sm font-bold text-white mb-3">⚡ Quick Sync to Dashboard</h4>
+            <p class="text-xs text-[#94a3b8] mb-3">Pilih coin dari portfolio untuk di-track di Dashboard:</p>
+            <select id="quickSyncCoin" class="config-input mb-3">
+              <option value="">-- Pilih Coin --</option>
+            </select>
+            <button onclick="quickSyncToDashboard()" class="btn-secondary w-full text-xs">
+              Apply to Dashboard
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-[var(--border)] py-4 mt-8">
+    <div class="max-w-[1600px] mx-auto px-4 flex justify-between items-center text-[10px] text-[#64748b] font-mono">
+      <span>© 2024 PICA TERMINAL</span>
+      <span id="systemClock">--:--:--</span>
+    </div>
+  </footer>
+
+  <script>
+    // --- CONFIG ---
+    let CONFIG = {
+      HOLDINGS: 20965.2406015,
+      INITIAL_CAPITAL: 22307015,
+      PAIR_CODE: 'eden_idr',
+      REFRESH_RATE: 3000,
+      MAX_HISTORY: 50
+    };
+
+    // SYMBOL MAPPING - Updated for direct EDEN/USDT
+    const SYMBOL_MAP = {
+      'eden_idr': { tv: 'MEXC:EDENUSDT', display: 'EDEN/USDT', exchange: 'MEXC' },
+      'mon_idr': { tv: 'BYBIT:MONUSDT', display: 'MON/USDT', exchange: 'Bybit' },
+      'btc_idr': { tv: 'BINANCE:BTCUSDT', display: 'BTC/USDT', exchange: 'Binance' },
+      'eth_idr': { tv: 'BINANCE:ETHUSDT', display: 'ETH/USDT', exchange: 'Binance' },
+      'sol_idr': { tv: 'BINANCE:SOLUSDT', display: 'SOL/USDT', exchange: 'Binance' },
+      'usdt_idr': { tv: 'BINANCE:USDTUSD', display: 'USDT/USD', exchange: 'Binance' }
+    };
+
+    // PROXIES
+    const PROXIES = [
+      'https://api.allorigins.win/raw?url=',
+      'https://corsproxy.io/?',
+      'https://api.codetabs.com/v1/proxy?quest='
+    ];
+    let activeProxyIndex = 0;
+    let failCount = 0;
+    let tickCount = 0;
+    let sessionStart = Date.now();
+
+    // Local proxy server
+    const LOCAL_PROXY = 'http://localhost:3001';
+    let proxyAvailable = false;
+    let SIMULATION_MODE = false; // Auto-enabled if no proxy found
+
+    // Simulate price movement
+    let lastSimPrice = 0;
+    function getSimulatedPrice(basePrice) {
+      if (!lastSimPrice) lastSimPrice = basePrice;
+      const volatility = basePrice * 0.002; // 0.2% volatility
+      const change = (Math.random() - 0.5) * volatility;
+      lastSimPrice += change;
+      return lastSimPrice;
+    }
+
+    // Portfolio data
+    let portfolioData = [];
+    let indodaxConnected = false;
+
+    // Default API Keys (pre-configured)
+    const DEFAULT_API_KEY = 'JTNZRMXM-4D5IELX0-5HGJD8M1-JC4UFL4O-37RC7UAE';
+    const DEFAULT_SECRET_KEY = '0526fc92ba54bc17935f40c8940f00cb5e709e793994885173d79bd756ceb044b6bf40bfc5f8d600';
+
+    // UI
+    const ui = {
+      price: document.getElementById('price'),
+      assetName: document.getElementById('assetName'),
+      change: document.getElementById('price-change'),
+      holdings: document.getElementById('holdings'),
+      currentValue: document.getElementById('currentValue'),
+      pnlRp: document.getElementById('pnlRp'),
+      pnlPct: document.getElementById('pnlPct'),
+      pnlBar: document.getElementById('pnlBar'),
+      roiBar: document.getElementById('roiBar'),
+      loading: document.getElementById('loadingBox'),
+      loadingText: document.getElementById('loadingText'),
+      status: document.getElementById('connectionStatus'),
+      proxyStatus: document.getElementById('proxyStatus'),
+      advice: document.getElementById('advice'),
+      inputCoin: document.getElementById('coinSelector'),
+      inputHoldings: document.getElementById('inputHoldings'),
+      inputCapital: document.getElementById('inputCapital'),
+      historyBody: document.getElementById('historyTableBody'),
+      emptyHistoryMsg: document.getElementById('emptyHistoryMsg'),
+      newsContainer: document.getElementById('newsContainer'),
+      chartSymbol: document.getElementById('chartSymbol'),
+      tickCount: document.getElementById('tickCount'),
+      sessionTime: document.getElementById('sessionTime'),
+      mobileRoi: document.getElementById('mobileRoi'),
+      lastUpdated: document.getElementById('lastUpdated'),
+      systemClock: document.getElementById('systemClock')
+    };
+
+    const fmt = {
+      idr: (v) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(v),
+      num: (v) => Number(v).toLocaleString('id-ID')
+    };
+
+    let chart;
+    let tvWidget;
+    let currentTimeframe = '15';
+    let currentView = 'dashboard';
+
+    // Mobile toggle
+    function toggleMobile() {
+      document.getElementById('mobileNav').classList.toggle('active');
+      document.getElementById('mobileOverlay').classList.toggle('active');
+    }
+
+    // Chart.js
+    function initChart() {
+      const ctx = document.getElementById('sparkline').getContext('2d');
+      const gradient = ctx.createLinearGradient(0, 0, 0, 200);
+      gradient.addColorStop(0, 'rgba(0, 255, 136, 0.2)');
+      gradient.addColorStop(1, 'rgba(0, 255, 136, 0)');
+
+      chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: [],
+          datasets: [{
+            data: [],
+            borderColor: '#00ff88',
+            borderWidth: 2,
+            tension: 0.4,
+            pointRadius: 0,
+            fill: true,
+            backgroundColor: gradient
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: false },
+          scales: {
+            x: { display: false },
+            y: { display: false }
+          },
+          interaction: { intersect: false, mode: 'index' }
+        }
+      });
+    }
+
+    // TradingView - Direct EDEN/USDT
+    function initTradingView() {
+      if (tvWidget) return;
+
+      const symbolInfo = SYMBOL_MAP[CONFIG.PAIR_CODE];
+
+      tvWidget = new TradingView.widget({
+        container_id: "tradingview_chart",
+        width: "100%",
+        height: "100%",
+        symbol: symbolInfo.tv,
+        interval: currentTimeframe,
+        timezone: "Asia/Jakarta",
+        theme: "dark",
+        style: "1",
+        locale: "id_ID",
+        toolbar_bg: "#0a0a0f",
+        enable_publishing: false,
+        hide_side_toolbar: false,
+        allow_symbol_change: true,
+        withdateranges: true,
+        hide_volume: false,
+        studies: ["RSI@tv-basicstudies", "MACD@tv-basicstudies"],
+        overrides: {
+          "paneProperties.background": "#0a0a0f",
+          "paneProperties.backgroundType": "solid",
+          "mainSeriesProperties.candleStyle.upColor": "#00ff88",
+          "mainSeriesProperties.candleStyle.downColor": "#ef4444",
+          "mainSeriesProperties.candleStyle.borderUpColor": "#00ff88",
+          "mainSeriesProperties.candleStyle.borderDownColor": "#ef4444",
+          "mainSeriesProperties.candleStyle.wickUpColor": "#00ff88",
+          "mainSeriesProperties.candleStyle.wickDownColor": "#ef4444"
+        }
+      });
+
+      ui.chartSymbol.textContent = symbolInfo.display;
+    }
+
+    // View Switch
+    function switchView(view) {
+      currentView = view;
+      document.getElementById('dashboardView').classList.toggle('hidden', view !== 'dashboard');
+      document.getElementById('portfolioView').classList.toggle('hidden', view !== 'portfolio');
+      document.getElementById('chartView').classList.toggle('hidden', view !== 'chart');
+
+      document.querySelectorAll('.tab-btn').forEach((btn, i) => {
+        btn.classList.toggle('active',
+          (view === 'dashboard' && i === 0) ||
+          (view === 'portfolio' && i === 1) ||
+          (view === 'chart' && i === 2)
+        );
+      });
+
+      if (view === 'chart' && !tvWidget) {
+        setTimeout(initTradingView, 100);
+      }
+    }
+
+    // Timeframe
+    function changeTimeframe(interval, btn) {
+      currentTimeframe = interval;
+      document.querySelectorAll('.tf-btn').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+
+      if (tvWidget && tvWidget.chart) {
+        try { tvWidget.chart().setResolution(interval); } catch (e) { }
+      }
+    }
+
+    // Fullscreen
+    function toggleFullscreen() {
+      const el = document.getElementById('tradingview_chart');
+      if (!document.fullscreenElement) {
+        el.requestFullscreen().catch(console.error);
+      } else {
+        document.exitFullscreen();
+      }
+    }
+
+    // Fetch Data
+    async function fetchMarketData() {
+      ui.loading.classList.remove('hidden');
+
+      // Try local proxy first
+      if (proxyAvailable) {
+        ui.loadingText.textContent = 'LOCAL...';
+        try {
+          const res = await fetch(`${LOCAL_PROXY}/api/ticker?pair=${CONFIG.PAIR_CODE}`);
+          const data = await res.json();
+          if (data.ticker?.last) {
+            failCount = 0;
+            tickCount++;
+            updateDashboard(parseFloat(data.ticker.last));
+            ui.status.innerHTML = `<span class="status-dot"></span> LIVE`;
+            ui.proxyStatus.textContent = 'Active • Local Server';
+            ui.proxyStatus.className = "config-input text-[var(--accent)] text-xs";
+            ui.loading.classList.add('hidden');
+            return;
+          }
+        } catch (e) {
+          console.log('Local proxy failed, falling back to CORS proxy...');
+        }
+      }
+
+      // SIMULATION MODE CHECK
+      if (SIMULATION_MODE) {
+        ui.loadingText.textContent = 'SIMULATION...';
+        const basePrice = CONFIG.PAIR_CODE.includes('btc') ? 1500000000 :
+          CONFIG.PAIR_CODE.includes('eth') ? 50000000 :
+            CONFIG.PAIR_CODE.includes('sol') ? 2500000 : 15000;
+
+        const price = getSimulatedPrice(basePrice);
+
+        // Add random delay to simulate network
+        await new Promise(r => setTimeout(r, 500));
+
+        failCount = 0;
+        tickCount++;
+        updateDashboard(price);
+        ui.status.innerHTML = `<span class="status-dot" style="background:#fbbf24"></span> SIMULATED`;
+        ui.proxyStatus.textContent = 'Active • Demo';
+        ui.proxyStatus.className = "config-input text-[var(--accent-gold)] text-xs";
+        ui.loading.classList.add('hidden');
+        return;
+      }
+
+      // Fallback to CORS proxy
+      ui.loadingText.textContent = `NODE ${activeProxyIndex + 1}...`;
+      const targetUrl = `https://indodax.com/api/ticker/${CONFIG.PAIR_CODE}`;
+      const proxy = PROXIES[activeProxyIndex];
+      const finalUrl = proxy + encodeURIComponent(targetUrl) + '&t=' + Date.now();
+
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000);
+        const res = await fetch(finalUrl, { signal: controller.signal });
+        clearTimeout(timeoutId);
+        if (!res.ok) throw new Error("Proxy Error");
+
+        const data = await res.json();
+        if (!data.ticker?.last) throw new Error("Invalid");
+
+        failCount = 0;
+        tickCount++;
+        updateDashboard(parseFloat(data.ticker.last));
+
+        ui.status.innerHTML = `<span class="status-dot"></span> LIVE`;
+        ui.proxyStatus.textContent = `Active • Node ${activeProxyIndex + 1}`;
+        ui.proxyStatus.className = "config-input text-[var(--accent)] text-xs";
+
+      } catch (e) {
+        failCount++;
+        ui.status.innerHTML = `<span class="status-dot" style="background:#ef4444"></span> RETRY`;
+        if (failCount > 2) {
+          // Switch to Simulation Mode if all proxies fail
+          console.log('All proxies failed, switching to SIMULATION MODE');
+          SIMULATION_MODE = true;
+          activeProxyIndex = 0;
+          failCount = 0;
+        } else {
+          activeProxyIndex = (activeProxyIndex + 1) % PROXIES.length;
+        }
+      } finally {
+        ui.loading.classList.add('hidden');
+      }
+    }
+
+    function updateDashboard(price) {
+      const val = price * CONFIG.HOLDINGS;
+      const pnl = val - CONFIG.INITIAL_CAPITAL;
+      const roi = (pnl / CONFIG.INITIAL_CAPITAL) * 100;
+      const isProfit = pnl >= 0;
+
+      ui.price.textContent = fmt.idr(price);
+      ui.price.className = `price-main ${isProfit ? 'text-[var(--accent)] glow-green' : 'text-[var(--red)] glow-red'}`;
+      ui.currentValue.textContent = fmt.idr(val);
+      ui.pnlRp.textContent = (isProfit ? '+' : '') + fmt.idr(pnl);
+      ui.pnlPct.textContent = (isProfit ? '+' : '') + roi.toFixed(2) + '%';
+
+      const color = isProfit ? 'var(--accent)' : 'var(--red)';
+      ui.pnlRp.style.color = color;
+      ui.pnlPct.style.color = color;
+      ui.pnlBar.style.background = color;
+      ui.pnlBar.style.width = Math.min(Math.abs(roi) * 5, 100) + '%';
+      ui.roiBar.style.width = Math.min(Math.abs(roi) * 5, 100) + '%';
+
+      if (ui.mobileRoi) {
+        ui.mobileRoi.textContent = (isProfit ? '+' : '') + roi.toFixed(2) + '%';
+        ui.mobileRoi.style.color = color;
+      }
+
+      ui.advice.innerHTML = `> Price: ${fmt.idr(price)}<br>> Delta: ${roi.toFixed(2)}%<br>> Status: ${isProfit ? 'PROFIT' : 'LOSS'}`;
+      ui.tickCount.textContent = tickCount;
+
+      // Title
+      const sym = CONFIG.PAIR_CODE.split('_')[0].toUpperCase();
+      document.title = `${isProfit ? '🟢' : '🔴'} ${sym}: ${isProfit ? '+' : ''}${roi.toFixed(2)}% | PICA`;
+
+      // Time
+      const now = new Date().toLocaleTimeString();
+      ui.lastUpdated.textContent = now;
+
+      // Chart update
+      if (chart.data.labels.length > 50) {
+        chart.data.labels.shift();
+        chart.data.datasets[0].data.shift();
+      }
+      chart.data.labels.push(now);
+      chart.data.datasets[0].data.push(val);
+
+      const ctx = document.getElementById('sparkline').getContext('2d');
+      const gradient = ctx.createLinearGradient(0, 0, 0, 200);
+      gradient.addColorStop(0, isProfit ? 'rgba(0, 255, 136, 0.2)' : 'rgba(239, 68, 68, 0.2)');
+      gradient.addColorStop(1, 'transparent');
+      chart.data.datasets[0].borderColor = isProfit ? '#00ff88' : '#ef4444';
+      chart.data.datasets[0].backgroundColor = gradient;
+      chart.update();
+
+      // Transaction
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td class="text-[#64748b]">${now}</td>
+        <td class="font-bold text-white">${fmt.idr(price)}</td>
+        <td class="text-right">${fmt.idr(val)}</td>
+        <td class="text-right font-bold" style="color:${color}">${isProfit ? '+' : ''}${fmt.idr(pnl)}</td>
+        <td class="text-right" style="color:${color}">${roi.toFixed(2)}%</td>
+      `;
+      ui.historyBody.prepend(row);
+      if (ui.historyBody.children.length > 20) ui.historyBody.lastChild.remove();
+      ui.emptyHistoryMsg.classList.add('hidden');
+    }
+
+    // News
+    async function fetchNews() {
+      try {
+        const res = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https://cointelegraph.com/rss');
+        const data = await res.json();
+        ui.newsContainer.innerHTML = data.items.slice(0, 3).map((item, i) => `
+          <a href="${item.link}" target="_blank" class="news-card block ${i === 2 ? 'desktop-only' : ''}">
+            <h4 class="text-sm font-bold text-white line-clamp-2 mb-2">${item.title}</h4>
+            <div class="text-[10px] text-[#64748b]">Cointelegraph • Alpha</div>
+          </a>
+        `).join('');
+      } catch (e) {
+        ui.newsContainer.innerHTML = '<div class="news-card col-span-full text-center py-4 text-sm text-[#64748b]">Feed unavailable</div>';
+      }
+    }
+
+    // Session timer
+    function updateSession() {
+      const elapsed = Math.floor((Date.now() - sessionStart) / 1000);
+      const h = String(Math.floor(elapsed / 3600)).padStart(2, '0');
+      const m = String(Math.floor((elapsed % 3600) / 60)).padStart(2, '0');
+      const s = String(elapsed % 60).padStart(2, '0');
+      ui.sessionTime.textContent = `${h}:${m}:${s}`;
+    }
+
+    // System clock
+    function updateClock() {
+      ui.systemClock.textContent = new Date().toLocaleTimeString();
+    }
+
+    // Events
+    document.getElementById('applyConfigBtn').addEventListener('click', () => {
+      CONFIG.PAIR_CODE = ui.inputCoin.value;
+      CONFIG.HOLDINGS = parseFloat(ui.inputHoldings.value);
+      CONFIG.INITIAL_CAPITAL = parseFloat(ui.inputCapital.value);
+
+      const name = ui.inputCoin.options[ui.inputCoin.selectedIndex].text.split('/')[0];
+      ui.assetName.textContent = name;
+      ui.holdings.textContent = fmt.num(CONFIG.HOLDINGS);
+
+      chart.data.labels = [];
+      chart.data.datasets[0].data = [];
+      chart.update();
+      ui.historyBody.innerHTML = '';
+      activeProxyIndex = 0;
+      tickCount = 0;
+      sessionStart = Date.now();
+
+      if (tvWidget) {
+        const symbolInfo = SYMBOL_MAP[CONFIG.PAIR_CODE];
+        tvWidget.setSymbol(symbolInfo.tv, currentTimeframe);
+        ui.chartSymbol.textContent = symbolInfo.display;
+      }
+
+      fetchMarketData();
+    });
+
+    document.getElementById('refreshBtn').addEventListener('click', fetchMarketData);
+
+    ui.inputCoin.addEventListener('change', () => {
+      const symbolInfo = SYMBOL_MAP[ui.inputCoin.value];
+      ui.chartSymbol.textContent = symbolInfo.display;
+      if (tvWidget && currentView === 'chart') {
+        tvWidget.setSymbol(symbolInfo.tv, currentTimeframe);
+      }
+    });
+
+    // ==========================================
+    // INDODAX PORTFOLIO INTEGRATION
+    // ==========================================
+
+    // Save/Load API keys from localStorage
+    function saveApiKeys(apiKey, secretKey) {
+      localStorage.setItem('indodax_api_key', apiKey);
+      localStorage.setItem('indodax_secret_key', secretKey);
+    }
+
+    function loadApiKeys() {
+      // Use localStorage if available, otherwise use defaults
+      const apiKey = localStorage.getItem('indodax_api_key') || DEFAULT_API_KEY;
+      const secretKey = localStorage.getItem('indodax_secret_key') || DEFAULT_SECRET_KEY;
+      document.getElementById('apiKeyInput').value = apiKey;
+      document.getElementById('secretKeyInput').value = secretKey;
+      return { apiKey, secretKey };
+    }
+
+    // Connect to Indodax
+    async function connectIndodax() {
+      // Get API keys - fallback to defaults if inputs are empty
+      let apiKey = document.getElementById('apiKeyInput').value.trim();
+      let secretKey = document.getElementById('secretKeyInput').value.trim();
+
+      // Fallback to default keys for auto-connect
+      if (!apiKey) apiKey = DEFAULT_API_KEY;
+      if (!secretKey) secretKey = DEFAULT_SECRET_KEY;
+
+      // Update input fields with the keys being used
+      document.getElementById('apiKeyInput').value = apiKey;
+      document.getElementById('secretKeyInput').value = secretKey;
+
+      if (!apiKey || !secretKey) {
+        console.log('❌ No API keys available');
+        return;
+      }
+
+      saveApiKeys(apiKey, secretKey);
+
+      const statusEl = document.getElementById('apiStatus');
+      statusEl.textContent = 'CONNECTING...';
+      statusEl.style.background = 'rgba(251, 191, 36, 0.2)';
+      statusEl.style.borderColor = 'rgba(251, 191, 36, 0.3)';
+      statusEl.style.color = '#fbbf24';
+
+
+      try {
+        await syncPortfolio();
+        indodaxConnected = true;
+        statusEl.innerHTML = '<span class="status-dot"></span> CONNECTED';
+        statusEl.style.background = 'rgba(0, 255, 136, 0.1)';
+        statusEl.style.borderColor = 'rgba(0, 255, 136, 0.3)';
+        statusEl.style.color = '#00ff88';
+      } catch (error) {
+        console.error('Connection error:', error);
+        statusEl.textContent = 'ERROR';
+        statusEl.style.background = 'rgba(239, 68, 68, 0.2)';
+        statusEl.style.borderColor = 'rgba(239, 68, 68, 0.3)';
+        statusEl.style.color = '#ef4444';
+        alert('Gagal connect ke Indodax: ' + error.message);
+      }
+    }
+
+    // Create HMAC signature for Indodax API
+    function createSignature(params, secretKey) {
+      const queryString = new URLSearchParams(params).toString();
+      return CryptoJS.HmacSHA512(queryString, secretKey).toString();
+    }
+
+    // Check if local proxy is available (with retry)
+    async function checkProxyHealth(retries = 3, delay = 500) {
+      for (let i = 0; i < retries; i++) {
+        try {
+          const res = await fetch(`${LOCAL_PROXY}/api/health`, { method: 'GET' });
+          if (res.ok) {
+            proxyAvailable = true;
+            console.log('✅ Local proxy server connected');
+            return true;
+          }
+        } catch (e) {
+          if (i < retries - 1) {
+            console.log(`🔄 Proxy retry ${i + 1}/${retries}...`);
+            await new Promise(r => setTimeout(r, delay));
+          }
+        }
+      }
+      proxyAvailable = false;
+      console.log('❌ Local proxy not available - enabling SIMULATION MODE fallback');
+      // We don't force SIMULATION_MODE here yet, we let fetchMarketData try remote proxies first
+      return false;
+    }
+
+    // Fetch portfolio from Indodax via local proxy
+    async function syncPortfolio() {
+      const apiKey = document.getElementById('apiKeyInput').value.trim();
+      const secretKey = document.getElementById('secretKeyInput').value.trim();
+
+      if (!apiKey || !secretKey) {
+        throw new Error('API keys not configured');
+      }
+
+      // Check if local proxy is running
+      const proxyReady = await checkProxyHealth();
+
+      if (!proxyReady) {
+        // Mock portfolio for simulation
+        if (confirm('Server lokal tidak ditemukan. Gunakan Mode Demo untuk portfolio?')) {
+          const mockData = {
+            balance: { idr: 15000000, btc: 0.05, eth: 1.2, sol: 45, eden: 5000 },
+            balance_hold: { idr: 0, btc: 0, eth: 0, sol: 0, eden: 0 }
+          };
+          const mockPrices = {
+            btc_idr: { last: 1500000000 },
+            eth_idr: { last: 50000000 },
+            sol_idr: { last: 2500000 },
+            eden_idr: { last: 15000 }
+          };
+          await processPortfolioDataWithPrices(mockData, mockPrices);
+          return;
+        }
+        throw new Error('Proxy server not running');
+      }
+
+      try {
+        const response = await fetch(`${LOCAL_PROXY}/api/portfolio`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ apiKey, secretKey })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          console.log('✅ Portfolio fetched successfully');
+          await processPortfolioDataWithPrices(result.data, result.prices);
+        } else {
+          throw new Error(result.error || 'API Error');
+        }
+      } catch (e) {
+        console.error('Portfolio fetch error:', e);
+        throw e;
+      }
+    }
+
+    // Process portfolio data with prices from server
+    async function processPortfolioDataWithPrices(data, prices) {
+      portfolioData = [];
+      let totalValueIdr = 0;
+      let idrBalance = parseFloat(data.balance?.idr || 0);
+
+      // Process prices
+      const priceMap = {};
+      for (const [pair, info] of Object.entries(prices || {})) {
+        const coin = pair.replace('_idr', '').replace('_usdt', '');
+        priceMap[coin] = parseFloat(info.last || 0);
+      }
+
+      // Process balances
+      const quickSyncSelect = document.getElementById('quickSyncCoin');
+      quickSyncSelect.innerHTML = '<option value="">-- Pilih Coin --</option>';
+
+      for (const [coin, amount] of Object.entries(data.balance || {})) {
+        const balance = parseFloat(amount);
+        const frozen = parseFloat(data.balance_hold?.[coin] || 0);
+
+        if (balance > 0 || frozen > 0) {
+          let valueIdr = 0;
+          if (coin === 'idr') {
+            valueIdr = balance;
+          } else {
+            valueIdr = balance * (priceMap[coin] || 0);
+          }
+
+          totalValueIdr += valueIdr;
+
+          portfolioData.push({
+            coin: coin.toUpperCase(),
+            balance: balance,
+            frozen: frozen,
+            valueIdr: valueIdr,
+            price: priceMap[coin] || 0
+          });
+
+          // Add to quick sync dropdown
+          if (coin !== 'idr' && balance > 0) {
+            const option = document.createElement('option');
+            option.value = `${coin}_idr`;
+            option.textContent = `${coin.toUpperCase()} (${balance.toFixed(4)})`;
+            option.dataset.balance = balance;
+            option.dataset.value = valueIdr;
+            quickSyncSelect.appendChild(option);
+          }
+        }
+      }
+
+      // Sort by value
+      portfolioData.sort((a, b) => b.valueIdr - a.valueIdr);
+
+      // Update UI
+      document.getElementById('totalPortfolioValue').textContent = fmt.idr(totalValueIdr);
+      document.getElementById('idrBalance').textContent = fmt.idr(idrBalance);
+      document.getElementById('totalAssets').textContent = portfolioData.length;
+      document.getElementById('lastSync').textContent = new Date().toLocaleTimeString();
+
+      // Render table
+      const tableBody = document.getElementById('portfolioTableBody');
+      tableBody.innerHTML = portfolioData.map(item => `
+        <tr>
+          <td>
+            <div class="flex items-center gap-2">
+              <div class="w-6 h-6 rounded bg-gradient-to-br from-[var(--purple)] to-[var(--cyan)] flex items-center justify-center text-[10px] font-bold">
+                ${item.coin.substring(0, 2)}
+              </div>
+              <span class="font-bold text-white">${item.coin}</span>
+            </div>
+          </td>
+          <td class="text-right font-mono">${item.coin === 'IDR' ? fmt.idr(item.balance) : item.balance.toFixed(8)}</td>
+          <td class="text-right font-mono text-[#64748b]">${item.frozen.toFixed(8)}</td>
+          <td class="text-right font-mono text-[var(--accent)]">${fmt.idr(item.valueIdr)}</td>
+        </tr>
+      `).join('');
+
+      document.getElementById('emptyPortfolioMsg').classList.add('hidden');
+    }
+
+    // Quick sync selected coin to dashboard
+    function quickSyncToDashboard() {
+      const select = document.getElementById('quickSyncCoin');
+      const selectedOption = select.options[select.selectedIndex];
+
+      if (!selectedOption.value) {
+        alert('Pilih coin terlebih dahulu!');
+        return;
+      }
+
+      const pairCode = selectedOption.value;
+      const balance = parseFloat(selectedOption.dataset.balance);
+      const value = parseFloat(selectedOption.dataset.value);
+
+      // Update config
+      CONFIG.PAIR_CODE = pairCode;
+      CONFIG.HOLDINGS = balance;
+      CONFIG.INITIAL_CAPITAL = value; // Set current value as initial capital
+
+      // Update UI
+      ui.inputCoin.value = pairCode;
+      ui.inputHoldings.value = balance;
+      ui.inputCapital.value = Math.round(value);
+
+      const coinName = pairCode.split('_')[0].toUpperCase();
+      ui.assetName.textContent = coinName;
+      ui.holdings.textContent = fmt.num(balance);
+
+      // Reset charts
+      chart.data.labels = [];
+      chart.data.datasets[0].data = [];
+      chart.update();
+      ui.historyBody.innerHTML = '';
+
+      // Switch to dashboard
+      switchView('dashboard');
+      fetchMarketData();
+
+      alert(`${coinName} telah di-sync ke Dashboard!`);
+    }
+
+    // Init
+    document.addEventListener('DOMContentLoaded', async () => {
+      initChart();
+      ui.holdings.textContent = fmt.num(CONFIG.HOLDINGS);
+
+      // Initialize dashboard input fields immediately
+      const inputHoldingsEl = document.getElementById('inputHoldings');
+      const inputCapitalEl = document.getElementById('inputCapital');
+      if (inputHoldingsEl) inputHoldingsEl.value = CONFIG.HOLDINGS;
+      if (inputCapitalEl) inputCapitalEl.value = CONFIG.INITIAL_CAPITAL;
+
+      // Check if local proxy is running
+      const proxyOk = await checkProxyHealth();
+
+
+      fetchMarketData();
+      fetchNews();
+      setInterval(fetchMarketData, CONFIG.REFRESH_RATE);
+      setInterval(updateSession, 1000);
+      setInterval(updateClock, 1000);
+
+      // Load saved API keys
+      loadApiKeys();
+
+      // Sync button - update CONFIG from input fields and refresh dashboard
+      const syncBtn = document.getElementById('syncBtn');
+      if (syncBtn) {
+        syncBtn.addEventListener('click', () => {
+          const holdingsEl = document.getElementById('inputHoldings');
+          const capitalEl = document.getElementById('inputCapital');
+          const newHoldings = parseFloat(holdingsEl?.value) || 0;
+          const newCapital = parseFloat(capitalEl?.value) || 0;
+
+          CONFIG.HOLDINGS = newHoldings;
+          CONFIG.INITIAL_CAPITAL = newCapital;
+
+          // Trigger dashboard update
+          fetchMarketData();
+
+          console.log('✅ Dashboard synced: Holdings=' + newHoldings + ', Capital=' + newCapital);
+        });
+      }
+
+      // AUTO-CONNECT: Wait a bit then try to connect
+      // Delay to ensure proxy server is ready
+      await new Promise(r => setTimeout(r, 1000));
+
+      // Try to connect with more retries
+      const proxyOk2 = await checkProxyHealth(5, 800);
+      if (proxyOk2) {
+        console.log('🚀 Auto-connecting to Indodax...');
+        try {
+          await connectIndodax();
+          console.log('✅ Portfolio auto-synced!');
+        } catch (e) {
+          console.log('⚠️ Auto-connect failed, manual sync required');
+        }
+      } else {
+        console.log('ℹ️ Local proxy not available - click Connect & Sync to connect');
+      }
+    });
+  </script>
+</body>
+
+</html>
