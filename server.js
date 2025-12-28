@@ -16,7 +16,7 @@ const https = require('https');
 const crypto = require('crypto');
 const url = require('url');
 
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 
 // CORS Headers
 const corsHeaders = {
@@ -221,6 +221,18 @@ const server = http.createServer(async (req, res) => {
         // 404 for other routes
         res.writeHead(404, corsHeaders);
         res.end(JSON.stringify({ error: 'Not found' }));
+
+        // Root route for easy health check
+        if (path === '/') {
+            res.writeHead(200, corsHeaders);
+            res.end(JSON.stringify({
+                status: 'online',
+                service: 'PICA Terminal Backend',
+                version: '2.0.0',
+                time: new Date().toISOString()
+            }));
+            return;
+        }
 
     } catch (error) {
         console.error('Server error:', error);

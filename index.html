@@ -992,6 +992,25 @@
     <!-- Portfolio View -->
     <div id="portfolioView" class="view-container hidden">
 
+      <!-- Backend Config -->
+      <div class="terminal-card mb-4">
+        <div class="terminal-card-header">
+          <span class="text-xs font-bold text-[#64748b] uppercase tracking-wider">🌐 Backend Connection</span>
+        </div>
+        <div class="terminal-card-body">
+          <div class="mb-2">
+            <label class="stat-label block mb-2">Backend URL</label>
+            <div class="flex gap-2">
+              <input type="text" id="backendUrlInput" class="config-input"
+                placeholder="http://localhost:3001 or https://your-app.railway.app">
+              <button onclick="saveBackendUrl()" class="btn-secondary whitespace-nowrap">Save & Test</button>
+            </div>
+            <p class="text-[10px] text-[#64748b] mt-2">Default: http://localhost:3001. Ganti ke URL deploy
+              Railway/Render Anda untuk live.</p>
+          </div>
+        </div>
+      </div>
+
       <!-- API Settings Card -->
       <div class="terminal-card mb-4">
         <div class="terminal-card-header">
@@ -1148,8 +1167,10 @@
     let tickCount = 0;
     let sessionStart = Date.now();
 
-    // Local proxy server
-    const LOCAL_PROXY = 'http://localhost:3001';
+    // Backend URL Configuration
+    const DEFAULT_BACKEND = 'http://localhost:3001';
+    let BACKEND_URL = localStorage.getItem('pica_backend_url') || DEFAULT_BACKEND;
+
     let proxyAvailable = false;
     let SIMULATION_MODE = false; // Auto-enabled if no proxy found
 
@@ -1334,18 +1355,18 @@
     async function fetchMarketData() {
       ui.loading.classList.remove('hidden');
 
-      // Try local proxy first
+      // Try configured backend first
       if (proxyAvailable) {
-        ui.loadingText.textContent = 'LOCAL...';
+        ui.loadingText.textContent = 'BACKEND...';
         try {
-          const res = await fetch(`${LOCAL_PROXY}/api/ticker?pair=${CONFIG.PAIR_CODE}`);
+          const res = await fetch(`${BACKEND_URL}/api/ticker?pair=${CONFIG.PAIR_CODE}`);
           const data = await res.json();
           if (data.ticker?.last) {
             failCount = 0;
             tickCount++;
             updateDashboard(parseFloat(data.ticker.last));
             ui.status.innerHTML = `<span class="status-dot"></span> LIVE`;
-            ui.proxyStatus.textContent = 'Active • Local Server';
+            ui.proxyStatus.textContent = BACKEND_URL.includes('localhost') ? 'Active • Local' : 'Active • Cloud';
             ui.proxyStatus.className = "config-input text-[var(--accent)] text-xs";
             ui.loading.classList.add('hidden');
             return;
@@ -1569,6 +1590,23 @@
       return { apiKey, secretKey };
     }
 
+    function saveBackendUrl() {
+      const url = document.getElementById('backendUrlInput').value.trim().replace(/\/$/, ""); // remove trailing slash
+      if (url) {
+        localStorage.setItem('pica_backend_url', url);
+        BACKEND_URL = url;
+        alert('Backend URL saved! Testing connection...');
+        checkProxyHealth().then(ok => {
+          if (ok) {
+            alert('✅ Connected successfully!');
+            fetchMarketData();
+          } else {
+            alert('❌ Connection failed. Check URL or ensure server is running.');
+          }
+        });
+      }
+    }
+
     // Connect to Indodax
     async function connectIndodax() {
       // Get API keys - fallback to defaults if inputs are empty
@@ -1624,10 +1662,10 @@
     async function checkProxyHealth(retries = 3, delay = 500) {
       for (let i = 0; i < retries; i++) {
         try {
-          const res = await fetch(`${LOCAL_PROXY}/api/health`, { method: 'GET' });
+          const res = await fetch(`${BACKEND_URL}/api/health`, { method: 'GET' });
           if (res.ok) {
             proxyAvailable = true;
-            console.log('✅ Local proxy server connected');
+            console.log(`✅ Backend connected at: ${BACKEND_URL}`);
             return true;
           }
         } catch (e) {
@@ -1638,8 +1676,7 @@
         }
       }
       proxyAvailable = false;
-      console.log('❌ Local proxy not available - enabling SIMULATION MODE fallback');
-      // We don't force SIMULATION_MODE here yet, we let fetchMarketData try remote proxies first
+      console.log(`❌ Backend not reachable at: ${BACKEND_URL}`);
       return false;
     }
 
@@ -1675,7 +1712,7 @@
       }
 
       try {
-        const response = await fetch(`${LOCAL_PROXY}/api/portfolio`, {
+        const response = await fetch(`${BACKEND_URL}/api/portfolio`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -1842,6 +1879,10 @@
 
       // Load saved API keys
       loadApiKeys();
+
+      // Init backend input
+      const backendInput = document.getElementById('backendUrlInput');
+      if (backendInput) backendInput.value = BACKEND_URL;
 
       // Sync button - update CONFIG from input fields and refresh dashboard
       const syncBtn = document.getElementById('syncBtn');

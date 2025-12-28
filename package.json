@@ -1,0 +1,19 @@
+{
+  "name": "pica-terminal-backend",
+  "version": "1.0.0",
+  "description": "Backend proxy server for PICA Terminal",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=14.x"
+  },
+  "keywords": [
+    "indodax",
+    "proxy",
+    "crypto"
+  ],
+  "author": "PICA Terminal",
+  "license": "ISC"
+}
